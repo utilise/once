@@ -13,7 +13,7 @@ module.exports = function once(g, selector, data, before, key) {
     .selectAll(selector.toString())
     .data(data || [0], key)
 
-  el.once = function(s,d,b,k) { return once.apply(el,s,d,b,k) }
+  el.once = function(s,d,b,k) { return once(el,s,d,b,k) }
 
   el.out = el.exit()
     .remove() 
