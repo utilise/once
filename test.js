@@ -85,6 +85,11 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<h1>abc</h1>')
   })
 
+  it('should not render anything with undefined', function() {
+    once(node, 'li', undefined)
+    expect(node.innerHTML).to.be.eql('')
+  })
+
 })
 
 
