@@ -80,6 +80,11 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<foo-bar attr="value" class="classA"></foo-bar>')
   })
 
+  it('should treat string data as one element', function() {
+    once(node, 'h1', 'abc').text(String)
+    expect(node.innerHTML).to.be.eql('<h1>abc</h1>')
+  })
+
 })
 
 
