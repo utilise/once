@@ -11,6 +11,7 @@ module.exports = function once(g, selector, data, before, key) {
                   : selector.split('.')[0] || 'div'
     
   if (is.str(data)) (data = [data])
+  if (is.obj(data) && !is.arr(data)) (data = [data])
   if (arguments.length == 2) data = [0]
   if (!data) data = []
 

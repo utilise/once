@@ -5,6 +5,7 @@ var expect = require('chai').expect
   , createElement = document.createElement = polyfill()
   , HTMLElement = global.HTMLElement = window.HTMLElement
   , once = require('./')
+  , key = require('key')
   , el = require('el')
 
 describe('once', function() {
@@ -90,8 +91,12 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('')
   })
 
-})
+  it('should render with single object', function() {
+    once(node, 'li', { foo: 'bar' }).text(key('foo'))
+    expect(node.innerHTML).to.be.eql('<li>bar</li>')
+  })
 
+})
 
 function polyfill(){
   var proxy = document.createElement
