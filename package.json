@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "d3": "^3.5.5",
-    "is": "git://github.com/utilise/is"
+    "is": "git+https://github.com/utilise/is.git"
   }
 }
