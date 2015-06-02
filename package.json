@@ -11,7 +11,7 @@
   "devDependencies": {
     "chai": "^2.3.0",
     "coveralls": "^2.11.2",
-    "el": "git://github.com/utilise/el",
+    "el": "git+https://github.com/utilise/el.git",
     "istanbul": "^0.3.13",
     "jsdom": "^5.4.3",
     "mocha": "^2.2.4",
