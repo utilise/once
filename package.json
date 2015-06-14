@@ -16,7 +16,7 @@
     "el": "git+https://github.com/utilise/el.git",
     "istanbul": "^0.3.13",
     "jsdom": "^5.4.3",
-    "key": "git:+https//github.com/utilise/key",
+    "key": "git+https://github.com/utilise/key.git",
     "mocha": "^2.2.4",
     "mocha-lcov-reporter": "0.0.2"
   },
