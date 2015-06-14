@@ -1,14 +1,21 @@
-var expect = require('chai').expect
-  , window = require("jsdom").jsdom('<div>').defaultView
-  , node = window.document.body.firstElementChild
-  , document = global.document = window.document
-  , createElement = document.createElement = polyfill()
-  , HTMLElement = global.HTMLElement = window.HTMLElement
-  , once = require('./')
+var d3 = global.d3 = require('d3')
+  , expect = require('chai').expect
+  , client = require('client')
+  , shim = !client && polyfill()
+  , attr = require('attr')
   , key = require('key')
   , el = require('el')
+  , once = require('./')
+  , node 
 
 describe('once', function() {
+
+  before(function(){
+    /* istanbul ignore next */
+    node = !client
+      ? document.body.firstElementChild
+      : document.body.appendChild(document.createElement('div'))
+  })
 
   beforeEach(function(){
     node.innerHTML = ''
@@ -78,7 +85,10 @@ describe('once', function() {
   it('should be able to deal with real elements too', function() {
     once(node, el('foo-bar.classA[attr=value]'))
     once(node, el('foo-bar.classA[attr=value]'))
-    expect(node.innerHTML).to.be.eql('<foo-bar attr="value" class="classA"></foo-bar>')
+    expect(node.firstElementChild.tagName.toLowerCase()).to.be.eql('foo-bar')
+    expect(node.firstElementChild.className).to.be.eql('classA')
+    expect(attr(node.firstElementChild, 'attr')).to.be.eql('value')
+    expect(node.firstElementChild.innerHTML).to.be.eql('')
   })
 
   it('should treat string data as one element', function() {
@@ -98,7 +108,15 @@ describe('once', function() {
 
 })
 
+
 function polyfill(){
+  window = require("jsdom").jsdom('<div>').defaultView
+  global.HTMLElement = window.HTMLElement
+  global.document = window.document
+  document.createElement = createElement()
+}
+
+function createElement(){
   var proxy = document.createElement
   return function(){
     var created = proxy.apply(this, arguments)

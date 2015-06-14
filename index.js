@@ -1,5 +1,4 @@
-var d3 = require('d3')
-  , is = require('is')  
+var is = require('is')  
 
 module.exports = function once(g, selector, data, before, key) {
   var g       = g.node ? g : d3.select(g)
