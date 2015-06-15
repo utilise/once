@@ -9,9 +9,9 @@
   "author": "Pedram Emrouznejad (https://github.com/pemrouz)",
   "license": "pemrouz.mit-license.org",
   "devDependencies": {
-    "attr": "git://github.com/utilise/attr",
+    "attr": "git+https://github.com/utilise/attr.git",
     "chai": "^2.3.0",
-    "client": "git://github.com/utilise/client",
+    "client": "git+https://github.com/utilise/client.git",
     "coveralls": "^2.11.2",
     "el": "git+https://github.com/utilise/el.git",
     "istanbul": "^0.3.13",
