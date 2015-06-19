@@ -9,10 +9,11 @@ module.exports = function once(g, selector, data, before, key) {
                   ? function(){ return selector }
                   : selector.split('.')[0] || 'div'
     
+  if (!data) data = []
+  if (arguments.length == 2) data = [0]
+  if (is.num(data)) (data = [data])
   if (is.str(data)) (data = [data])
   if (is.obj(data) && !is.arr(data)) (data = [data])
-  if (arguments.length == 2) data = [0]
-  if (!data) data = []
 
   var el = g
     .selectAll(selector.toString())
