@@ -106,6 +106,34 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<li>bar</li>')
   })
 
+  it('should not render any negatives', function() {
+    once(node, 'li', false)
+    once(node, 'li', 0)
+    once(node, 'li', '')
+    once(node, 'li', [])
+
+    expect(node.innerHTML).to.be.eql('')
+  })
+
+  it('should not render any negatives', function() {
+    once(node, 'li', false)
+    once(node, 'li', 0)
+    once(node, 'li', '')
+    once(node, 'li', [])
+
+    expect(node.innerHTML).to.be.eql('')
+  })
+
+  it('should render true as one el', function() {
+    once(node, 'li', true).text(String)
+    expect(node.innerHTML).to.be.eql('<li>true</li>')
+  })
+
+  it('should render number as one el', function() {
+    once(node, 'li', 5).text(String)
+    expect(node.innerHTML).to.be.eql('<li>5</li>')
+  })
+
 })
 
 

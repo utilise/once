@@ -11,9 +11,10 @@ module.exports = function once(g, selector, data, before, key) {
     
   if (!data) data = []
   if (arguments.length == 2) data = [0]
-  if (is.num(data)) (data = [data])
-  if (is.str(data)) (data = [data])
-  if (is.obj(data) && !is.arr(data)) (data = [data])
+  if (is.bol(data)
+  ||  is.num(data)
+  ||  is.str(data)
+  || (is.obj(data) && !is.arr(data))) data = [data]
 
   var el = g
     .selectAll(selector.toString())
