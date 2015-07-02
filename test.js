@@ -1,7 +1,7 @@
-var d3 = global.d3 = require('d3')
-  , expect = require('chai').expect
+var expect = require('chai').expect
   , client = require('client')
   , shim = !client && polyfill()
+  , d3 = global.d3 = require('d3')
   , inherit = require('inherit')  
   , wrap = require('wrap')  
   , attr = require('attr')
