@@ -1,33 +1,68 @@
-var is = require('is')  
+var proxy  = require('proxy')  
+  , wrap   = require('wrap')  
+  , sall   = require('sall')  
+  , sel    = require('sel')  
+  , is     = require('is')  
 
-module.exports = function once(g, selector, data, before, key) {
-  var g       = g.node ? g : d3.select(g)
-    , classed = selector instanceof HTMLElement
-                  ? selector.className
-                  : selector.split('.').slice(1).join(' ')
-    , type    = selector instanceof HTMLElement
-                  ? function(){ return selector }
-                  : selector.split('.')[0] || 'div'
-    
-  if (!data) data = []
-  if (arguments.length == 2) data = [0]
-  if (is.bol(data)
-  ||  is.num(data)
-  ||  is.str(data)
-  || (is.obj(data) && !is.arr(data))) data = [data]
+module.exports = function once(scope) {
+  var parent = scope.node ? scope : sel(scope)
+  return function o(selector, data, key, before) {
+    if (arguments.length == 1) return once(sall(parent)(selector))
+    var fn
+      , enter = []
+      , exit = []
+      , els = []
 
-  var el = g
-    .selectAll(selector.toString())
-    .data(data, key)
+    parent.each(function(paData, i){
+      var self = this
+      var elData = data
+        , elSelector = selector
 
-  el.once = function(s,d,b,k) { return once(el,s,d,b,k) }
+      if (is.fn(elSelector)) elSelector = elSelector(paData, i)
+      if (is.fn(elData))     elData = elData(paData, i)
+      if (!elData)           elData = []
+      if (!is.arr(elData))   elData = [elData]
 
-  el.out = el.exit()
-    .remove() 
+      var classes = elSelector instanceof HTMLElement
+                  ? elSelector.className
+                  : elSelector.split('.').slice(1).join(' ')
 
-  el.in = el.enter()
-    .insert(type, before)
-    .classed(classed, 1)
+      var type    = elSelector instanceof HTMLElement
+                  ? wrap(elSelector)
+                  : elSelector.split('.')[0] || 'div'
+      
+      var el = sel(self)
+        .selectAll(elSelector.toString())
+        .data(elData, key)
+  
+      el.exit()
+        .remove()
+        .each(push(exit))
 
-  return el
+      el.enter()
+        .insert(type, before)
+        .classed(classes, 1)
+        .each(push(enter))
+
+      el.each(push(els))
+    })
+
+    els = sall()(els)
+    fn = once(els)
+    fn.enter = sall()(enter)
+    fn.exit = sall()(exit)
+    fn.sel = els
+
+    ;['text', 'classed', 'html', 'attr', 'style', 'on'].map(function(op){
+      fn[op] = proxy(els[op], wrap(fn), els)
+    })
+
+    return fn
+  }
+}
+
+function push(arr) {
+  return function(d){ 
+    arr.push(this) 
+  }
 }

@@ -14,6 +14,7 @@
     "client": "git+https://github.com/utilise/client.git",
     "coveralls": "^2.11.2",
     "el": "git+https://github.com/utilise/el.git",
+    "inherit": "git+https://github.com/utilise/inherit.git",
     "istanbul": "^0.3.13",
     "jsdom": "^5.4.3",
     "key": "git+https://github.com/utilise/key.git",
@@ -22,6 +23,10 @@
   },
   "dependencies": {
     "d3": "^3.5.5",
-    "is": "git+https://github.com/utilise/is.git"
+    "is": "git+https://github.com/utilise/is.git",
+    "proxy": "git+https://github.com/utilise/proxy.git",
+    "sel": "git+https://github.com/utilise/sel.git",
+    "sall": "git+https://github.com/utilise/sall.git",
+    "wrap": "git+https://github.com/utilise/wrap.git"
   }
 }
