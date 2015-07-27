@@ -1,12 +1,12 @@
 var expect = require('chai').expect
-  , client = require('client')
+  , client = require('utilise.client')
   , shim = !client && polyfill()
   , d3 = global.d3 = require('d3')
-  , inherit = require('inherit')  
-  , wrap = require('wrap')  
-  , attr = require('attr')
-  , key = require('key')
-  , el = require('el')
+  , inherit = require('utilise.inherit')  
+  , wrap = require('utilise.wrap')  
+  , attr = require('utilise.attr')
+  , key = require('utilise.key')
+  , el = require('utilise.el')
   , once = require('./')
   , node 
 

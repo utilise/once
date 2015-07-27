@@ -1,8 +1,8 @@
-var proxy  = require('proxy')  
-  , wrap   = require('wrap')  
-  , sall   = require('sall')  
-  , sel    = require('sel')  
-  , is     = require('is')  
+var proxy  = require('utilise.proxy')  
+  , wrap   = require('utilise.wrap')  
+  , sall   = require('utilise.sall')  
+  , sel    = require('utilise.sel')  
+  , is     = require('utilise.is')  
 
 module.exports = function once(scope) {
   var parent = scope.node ? scope : sel(scope)
