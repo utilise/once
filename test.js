@@ -170,6 +170,30 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<ul><li><a>bar</a></li></ul>')
   })
 
+  it('should have accessors on first scoping', function() {
+    var o = once(node)
+    expect(o['text']).to.be.a('function')
+    expect(o['classed']).to.be.a('function')
+    expect(o['html']).to.be.a('function')
+    expect(o['attr']).to.be.a('function')
+    expect(o['style']).to.be.a('function')
+    expect(o['on']).to.be.a('function')
+    expect(o['each']).to.be.a('function')
+    expect(o['node']).to.be.a('function')
+  })
+
+  it('should have accessors on subsequent operations', function() {
+    var o = once(node)('li', 1)
+    expect(o['text']).to.be.a('function')
+    expect(o['classed']).to.be.a('function')
+    expect(o['html']).to.be.a('function')
+    expect(o['attr']).to.be.a('function')
+    expect(o['style']).to.be.a('function')
+    expect(o['on']).to.be.a('function')
+    expect(o['each']).to.be.a('function')
+    expect(o['node']).to.be.a('function')
+  })
+
 })
 
 
