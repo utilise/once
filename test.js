@@ -180,6 +180,7 @@ describe('once', function() {
     expect(o['on']).to.be.a('function')
     expect(o['each']).to.be.a('function')
     expect(o['node']).to.be.a('function')
+    expect(o['datum']).to.be.a('function')
   })
 
   it('should have accessors on subsequent operations', function() {
@@ -192,6 +193,7 @@ describe('once', function() {
     expect(o['on']).to.be.a('function')
     expect(o['each']).to.be.a('function')
     expect(o['node']).to.be.a('function')
+    expect(o['datum']).to.be.a('function')
   })
 
 })
