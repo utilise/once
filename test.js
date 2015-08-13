@@ -106,6 +106,12 @@ describe('once', function() {
     expect(node.firstElementChild.innerHTML).to.be.eql('')
   })
 
+  it('should clone real elements', function() {
+    once(node)(el('foo-bar'), [1,2,3])
+    expect(node.childNodes.length).to.be.eql(3)
+  })
+  
+
   it('should process function for data', function() {
     once(node)
       ('div', [{foo:'bar'},{foo:'baz'}])
