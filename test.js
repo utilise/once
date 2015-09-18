@@ -204,6 +204,19 @@ describe('once', function() {
     expect(o['property']).to.be.a('function')
   })
 
+  it('should respect > selector', function() {
+    once(node)
+      ('ul', 1)
+        ('li', 1)
+          .text(String)
+
+    once(node)
+      ('div > li', 2)
+        .text(String)
+          
+    expect(node.innerHTML).to.be.eql('<ul><li>1</li></ul><li>2</li>')
+  })
+
 })
 
 
