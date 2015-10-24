@@ -217,8 +217,13 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<ul><li>1</li></ul><li>2</li>')
   })
 
-})
+  it('should not need data if selector is function', function() {
+    once(node)(function(){ return 'div' })
+    expect(node.innerHTML).to.be.eql('<div></div>')
+  })
 
+
+})
 
 function polyfill(){
   window = require("jsdom").jsdom('<div>').defaultView
