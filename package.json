@@ -23,9 +23,10 @@
   },
   "dependencies": {
     "d3": "^3.5.5",
+    "utilise.emitterify": "*",
+    "utilise.extend": "*",
     "utilise.is": "*",
     "utilise.proxy": "*",
-    "utilise.push": "0.0.2",
     "utilise.sall": "*",
     "utilise.sel": "*",
     "utilise.wrap": "*"

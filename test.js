@@ -79,11 +79,18 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<li class="A"></li><li class="B"></li>')
   })
 
+  it('should select multiple parents', function() {
+    once(node)('li', [1,2,3])
+    once('li')('a', 1)
+    expect(node.innerHTML).to.be.eql('<li><a></a></li><li><a></a></li><li><a></a></li>')
+  })
+
   it('should be able to chain onces', function() {
     once(node)('li', [1, 2])
       .text(String)
         ('a', [3, 4])
-        .text(String)
+        .html(String)
+          ('span', [])
 
     expect(node.innerHTML).to.be.eql('<li>1<a>3</a><a>4</a></li><li>2<a>3</a><a>4</a></li>')
   })
@@ -110,7 +117,6 @@ describe('once', function() {
     once(node)(el('foo-bar'), [1,2,3])
     expect(node.childNodes.length).to.be.eql(3)
   })
-  
 
   it('should process function for data', function() {
     once(node)
@@ -123,10 +129,18 @@ describe('once', function() {
 
   it('should treat string data as one element', function() {
     once(node)
-      ('h1', ['abc'])
+      ('h1', 'abc')
         .text(String)
 
     expect(node.innerHTML).to.be.eql('<h1>abc</h1>')
+  })
+
+  it('should render empty string', function() {
+    once(node)
+      ('h1', '')
+        .text(String)
+
+    expect(node.innerHTML).to.be.eql('<h1></h1>')
   })
 
   it('should not render anything with undefined', function() {
@@ -222,7 +236,83 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<div></div>')
   })
 
+  it('should emitterify elements', function(){
+    var el = once(node)('div', 1)
+      , result
 
+    expect(el.on).to.be.ok
+    expect(el.once).to.be.ok
+    expect(el.emit).to.be.ok
+  })
+
+  it('should emit custom events', function(){
+    var el = once(node)('div', 1)
+      , result1, result2
+
+    node.firstChild.on('synthetic', function(d){ result1 = d })
+    el.on('synthetic', function(d){ result2 = d })
+    
+    // from selection
+    result1 = result2 = undefined
+    el.emit('synthetic', 5)
+    expect(result1).to.eql(5)
+    expect(result2).to.eql(5)
+
+    // from element
+    result1 = result2 = undefined
+    node.firstChild.emit('synthetic', 7)
+    expect(result1).to.eql(7)
+    expect(result2).to.eql(7)
+  })
+
+  it('should emit custom events - with namespaces', function(){
+    var el = once(node)('div', 1)
+      , result1, result2
+
+    node.firstChild.on('synthetic.ns1', function(d){ result1 = d })
+    el.on('synthetic.ns2', function(d){ result2 = d })
+    
+    // from selection
+    result1 = result2 = undefined
+    el.emit('synthetic', 5)
+    expect(result1).to.eql(5)
+    expect(result2).to.eql(5)
+
+    // from element
+    result1 = result2 = undefined
+    node.firstChild.emit('synthetic', 7)
+    expect(result1).to.eql(7)
+    expect(result2).to.eql(7)
+  })
+
+  it('should emit dom events', function(){
+    var el = once(node)('div', 1)
+      , result1, result2
+
+    node.firstChild.on('click', function(d){ result1 = d })
+    el.on('click', function(d){ result2 = d })
+    
+    event = document.createEvent("Event")
+    event.initEvent('click', false, false)
+    node.firstChild.dispatchEvent(event)
+    expect(result1).to.eql(1)
+    expect(result2).to.eql(1)
+  })
+
+  it('should emit dom events - with namespaces', function(){
+    var el = once(node)('div', 1)
+      , result1, result2
+
+    node.firstChild.on('click.ns1', function(d){ result1 = d })
+    el.on('click.ns2', function(d){ result2 = d })
+    
+    event = document.createEvent("Event")
+    event.initEvent('click', false, false)
+    node.firstChild.dispatchEvent(event)
+    expect(result1).to.eql(1)
+    expect(result2).to.eql(1)
+  })
+  
 })
 
 function polyfill(){
