@@ -312,7 +312,62 @@ describe('once', function() {
     expect(result1).to.eql(1)
     expect(result2).to.eql(1)
   })
+
+  it('should not add duplicate listeners', function(){
+    var el = once(node)('div', 1)
+      , result1 = 0, result2 = 0
+
+    node.firstChild.on('click.ns1', function(d){ result1 += d })
+    el.on('click.ns2', function(d){ result2 += d })
+    node.firstChild.on('click.ns1', function(d){ result1 += d })
+    el.on('click.ns2', function(d){ result2 += d })
+    node.firstChild.on('click.ns1', function(d){ result1 += d })
+    el.on('click.ns2', function(d){ result2 += d })
+    
+    event = document.createEvent("Event")
+    event.initEvent('click', false, false)
+    node.firstChild.dispatchEvent(event)
+    expect(result1).to.eql(1)
+    expect(result2).to.eql(1)
+  })
+
+  it('should be able to chain after event', function(){
+    var el = once(node)('div', 1)
+    expect(el.on('event', String)).to.eql(el)
+  })
+
+  it('should set d3.event', function(done){
+    var el = once(node)('div', 1)
+      , i = -1
+      , expects = function(){ 
+          expect(d3.event).to.be.ok
+          expect(d3.event.preventDefault).to.be.a('function')
+          expect(d3.event.stopPropagation).to.be.a('function')
+          ++i && done()
+        }
+
+    node.firstChild.on('click', expects)
+    el.on('click', expects)
+
+    event = document.createEvent("Event")
+    event.initEvent('click', false, false)
+    node.firstChild.dispatchEvent(event)
+  })
+
+  it('should emit data if no param specified', function(done){
+    var el = once(node)('div', { foo: 'bar' })
+      , i = -1
+      , expects = function(data){ 
+          expect(data).to.be.eql({ foo: 'bar' })
+          ++i && done()
+        }
+
+    node.firstChild.on('click', expects)
+    el.on('click', expects)
+    el.emit('click')
+  })
   
+
 })
 
 function polyfill(){
