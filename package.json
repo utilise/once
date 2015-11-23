@@ -30,6 +30,7 @@
     "utilise.proxy": "*",
     "utilise.sall": "*",
     "utilise.sel": "*",
+    "utilise.to": "*",
     "utilise.wrap": "*"
   }
 }
