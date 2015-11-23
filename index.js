@@ -36,6 +36,7 @@ function spawn(parents){
         .each(push(enter))
 
       el.each(push(els))
+        .each(function(){ this.draw && this.draw() })
     })
 
     return extend(once(els = sall()(els)))({ 

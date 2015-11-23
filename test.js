@@ -317,12 +317,14 @@ describe('once', function() {
     var el = once(node)('div', 1)
       , result1 = 0, result2 = 0
 
-    node.firstChild.on('click.ns1', function(d){ result1 += d })
-    el.on('click.ns2', function(d){ result2 += d })
-    node.firstChild.on('click.ns1', function(d){ result1 += d })
-    el.on('click.ns2', function(d){ result2 += d })
-    node.firstChild.on('click.ns1', function(d){ result1 += d })
-    el.on('click.ns2', function(d){ result2 += d })
+    /* istanbul ignore next */
+    ;( node.firstChild.on('click.ns1', function(d){ result1 += d })
+    , el.on('click.ns2', function(d){ result2 += d })
+    , node.firstChild.on('click.ns1', function(d){ result1 += d })
+    , el.on('click.ns2', function(d){ result2 += d })
+    , node.firstChild.on('click.ns1', function(d){ result1 += d })
+    , el.on('click.ns2', function(d){ result2 += d })
+    )
     
     event = document.createEvent("Event")
     event.initEvent('click', false, false)
@@ -367,6 +369,15 @@ describe('once', function() {
     el.emit('click')
   })
   
+  it('should invoke draw if exists', function(){
+    var result
+    
+    once(node)('div', { foo: 'bar' })
+    node.firstChild.draw = function(){ result = true }
+    expect(result).to.not.be.ok
+    once(node)('div', { foo: 'bar' })
+    expect(result).to.be.ok
+  })
 
 })
 
@@ -388,7 +399,7 @@ function createElement(){
 
 function add(element){
   return function(d){
-    if (~element.className.indexOf(d)) return;
+    // if (~element.className.indexOf(d)) return;
     element.className += ' ' + d
     element.className = element.className.trim()
   }
