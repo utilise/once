@@ -379,6 +379,18 @@ describe('once', function() {
     expect(result).to.be.ok
   })
 
+  it('should emit shadowroot on host', function(){
+    var el = once(node)('div', 1)
+      , sr = once(node)('span', 1)
+      , result
+
+    node.lastChild.host = el
+    el.on('event.sr', function(d){ result = d })
+    sr.emit('event', 'foo')
+
+    expect(result).to.eql('foo')
+  })
+
 })
 
 function polyfill(){

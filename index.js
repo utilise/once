@@ -91,12 +91,15 @@ function events(fn, els){
     fn[op] = function(type, listener){
       var args = to.arr(arguments)
       els.each(function(d){ 
-        if (op == 'emit' && args.length == 1) args[1] = d
-        this[op].apply(this, args)
-        if (op != 'on') return
-        var self = this
-          , ev = type.split('.').shift()
-        this.addEventListener(ev, redispatch)
+        var node = this.host || this
+
+        if (op == 'emit' && args.length == 1) 
+          args[1] = d
+          
+        node[op].apply(node, args)
+
+        if (op == 'on') 
+          node.addEventListener(type.split('.').shift(), redispatch)
       })
       return fn
     }
