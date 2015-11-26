@@ -85,21 +85,24 @@ function accessors(fn, els){
 }
 
 function events(fn, els){
-  els.each(function(){ emitterify(this) })
+  els.each(function(){ 
+    if (!this.host) return emitterify(this) 
+
+    var self = this
+    ;['on', 'once', 'emit'].map(function(op){ self[op] = self.host[op] })
+  })
 
   ;['on', 'once', 'emit'].map(function(op){ 
-    fn[op] = function(type, listener){
+    fn[op] = function(type){
       var args = to.arr(arguments)
       els.each(function(d){ 
-        var node = this.host || this
-
         if (op == 'emit' && args.length == 1) 
           args[1] = d
           
-        node[op].apply(node, args)
+        this[op].apply(this, args)
 
         if (op == 'on') 
-          node.addEventListener(type.split('.').shift(), redispatch)
+          this.addEventListener(type.split('.').shift(), redispatch)
       })
       return fn
     }

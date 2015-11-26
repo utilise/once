@@ -380,15 +380,22 @@ describe('once', function() {
   })
 
   it('should emit shadowroot on host', function(){
+    node.innerHTML = "<div></div><span></span>"
+    node.lastChild.host = node.firstChild
+
     var el = once(node)('div', 1)
       , sr = once(node)('span', 1)
       , result
 
-    node.lastChild.host = el
     el.on('event.sr', function(d){ result = d })
-    sr.emit('event', 'foo')
 
+    result = undefined
+    sr.emit('event', 'foo')
     expect(result).to.eql('foo')
+
+    result = undefined
+    node.lastChild.emit('event', 'bar')
+    expect(result).to.eql('bar')
   })
 
 })
