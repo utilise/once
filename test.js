@@ -285,17 +285,27 @@ describe('once', function() {
     expect(result2).to.eql(7)
   })
 
-  it('should emit dom events', function(){
+  it('should emit dom events - on node', function(){
     var el = once(node)('div', 1)
       , result1, result2
 
     node.firstChild.on('click', function(d){ result1 = d })
-    el.on('click', function(d){ result2 = d })
     
     event = document.createEvent("Event")
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
     expect(result1).to.eql(1)
+  })
+
+  it('should emit dom events - on o', function(){
+    var el = once(node)('div', 1)
+      , result1, result2
+
+    el.on('click', function(d){ result2 = d })
+    
+    event = document.createEvent("Event")
+    event.initEvent('click', false, false)
+    node.firstChild.dispatchEvent(event)
     expect(result2).to.eql(1)
   })
 
@@ -361,8 +371,7 @@ describe('once', function() {
       , i = 0
       , expects = function(data){ 
           expect(data).to.be.eql({ foo: 'bar' })
-          console.log('i', ++i)
-          // if (!++i) done()
+          if (++i == 4) done()
         }
 
     node.firstChild.on('click', expects)
