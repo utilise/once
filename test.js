@@ -358,15 +358,18 @@ describe('once', function() {
 
   it('should emit data if no param specified', function(done){
     var el = once(node)('div', { foo: 'bar' })
-      , i = -1
+      , i = 0
       , expects = function(data){ 
           expect(data).to.be.eql({ foo: 'bar' })
-          ++i && done()
+          console.log('i', ++i)
+          // if (!++i) done()
         }
 
     node.firstChild.on('click', expects)
     el.on('click', expects)
+
     el.emit('click')
+    node.firstChild.emit('click')
   })
   
   it('should invoke draw if exists', function(){
