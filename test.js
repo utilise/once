@@ -237,12 +237,28 @@ describe('once', function() {
   })
 
   it('should emitterify elements', function(){
-    var el = once(node)('div', 1)
-      , result
+    var el = once(node)('div', 1).on('foo', String)
 
     expect(el.on).to.be.ok
     expect(el.once).to.be.ok
     expect(el.emit).to.be.ok
+
+    expect(node.on).to.be.ok
+    expect(node.once).to.be.ok
+    expect(node.emit).to.be.ok
+
+    expect(node.firstChild.on).to.be.ok
+    expect(node.firstChild.once).to.be.ok
+    expect(node.firstChild.emit).to.be.ok
+    expect(node.firstChild.on.foo).to.be.ok
+  })
+
+  it('should emitterify idempotently', function(){
+    var el = once(node)('div', 1).on('foo', String)
+
+    expect(node.firstChild.on.foo).to.be.ok
+    once(node)('div')
+    expect(node.firstChild.on.foo).to.be.ok
   })
 
   it('should emit custom events', function(){

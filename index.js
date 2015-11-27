@@ -88,6 +88,7 @@ function events(fn, els){
   els.each(function(){ 
     var self = this
 
+    if (self.on) return
     if (!self.host) emitterify(self) 
 
     ;['on', 'once', 'emit'].map(function(op){ 
