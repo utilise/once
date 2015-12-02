@@ -426,6 +426,18 @@ describe('once', function() {
     expect(result).to.eql('bar')
   })
 
+  it('should return actual node via .node', function() {
+    var o = once(node)('li', 1)
+    expect(o.node()).to.be.eql(node.firstChild)
+  })
+
+  it('should remove node', function() {
+    var o = once(node)('li', 1)
+    expect(node.innerHTML).to.be.eql('<li></li>')
+    o.remove()
+    expect(node.innerHTML).to.be.eql('')
+  })
+
 })
 
 function polyfill(){

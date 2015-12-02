@@ -77,8 +77,8 @@ function enhance(fn, els){
 }
 
 function accessors(fn, els){
-  ;['text', 'classed', 'html', 'attr', 'style', 'each', 'node', 'datum', 'property'].map(function(op){
-    fn[op] = proxy(els[op], wrap(fn), els)
+  ;['text', 'classed', 'html', 'attr', 'style', 'each', 'node', 'datum', 'property', 'remove'].map(function(op){
+    fn[op] = proxy(els[op], op == 'node' ? 0 : wrap(fn), els)
   })
   
   return fn
