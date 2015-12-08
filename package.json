@@ -11,15 +11,16 @@
   "license": "pemrouz.mit-license.org",
   "devDependencies": {
     "chai": "^2.3.0",
-    "utilise.client": "*",
     "coveralls": "^2.11.2",
-    "utilise.el": "*",
-    "utilise.inherit": "*",
     "istanbul": "^0.3.13",
     "jsdom": "^5.4.3",
-    "utilise.key": "*",
     "mocha": "^2.2.4",
-    "mocha-lcov-reporter": "0.0.2"
+    "mocha-lcov-reporter": "0.0.2",
+    "utilise.el": "*",
+    "utilise.key": "*",
+    "utilise.time": "*",
+    "utilise.client": "*",
+    "utilise.inherit": "*"
   },
   "dependencies": {
     "d3": "^3.5.5",
@@ -27,7 +28,6 @@
     "utilise.emitterify": "*",
     "utilise.extend": "*",
     "utilise.is": "*",
-    "utilise.proxy": "*",
     "utilise.sall": "*",
     "utilise.sel": "*",
     "utilise.to": "*",

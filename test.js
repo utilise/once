@@ -3,9 +3,9 @@ var expect = require('chai').expect
   , shim = !client && polyfill()
   , d3 = global.d3 = require('d3')
   , inherit = require('utilise.inherit')  
-  , proxy = require('utilise.proxy')  
   , wrap = require('utilise.wrap')  
   , attr = require('utilise.attr')
+  , time = require('utilise.time')
   , key = require('utilise.key')
   , el = require('utilise.el')
   , once = require('./')
@@ -439,6 +439,38 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('')
   })
 
+  it('should allow accessors as getters as usual too', function() {
+    var o = once(node)('div', 'foo')
+      .property('foo', String)
+      .classed('foo', String)
+      .style('display', 'none')
+      .attr('foo', String)
+      .text(String)
+
+    expect(o.text()).to.eql('foo')
+    expect(o.classed('foo')).to.be.ok
+    expect(o.classed('bar')).to.not.be.ok
+    expect(o.attr('foo')).to.eql('foo')
+    expect(o.style('display')).to.eql('none')
+    expect(o.property('foo')).to.eql('foo')
+  })
+
+  it('should allow .each', function() {
+    var o = once(node)('div', ['foo', 'bar'])
+      .each(function(d){ this.foo = d })
+
+    expect(node.childNodes[0].foo).to.eql('foo')
+    expect(node.childNodes[1].foo).to.eql('bar')
+  })
+
+  it('should allow .datum', function() {
+    var o = once(node)('div', 'foo')
+      .datum('bar')
+
+    expect(node.childNodes[0].__data__).to.eql('bar')
+  })
+
+  /* istanbul ignore next */
   it('should memoize accessors', function(done) {
     if (typeof MutationObserver == 'undefined') return done()
 
@@ -460,6 +492,7 @@ describe('once', function() {
       o.text('foo') })
 
     time(20, function(){
+      expect(o.text()).to.be.eql('foo')
       expect(count).to.be.eql(1) })
 
     // attr
@@ -472,6 +505,7 @@ describe('once', function() {
       o.attr('foo', 'bar') })
 
     time(50, function(){
+      expect(o.attr('foo')).to.be.eql('bar')
       expect(count).to.be.eql(1) })
 
     // html
@@ -484,23 +518,26 @@ describe('once', function() {
       o.html('bar') })
 
     time(80, function(){
+      expect(o.html()).to.be.eql('bar')
       expect(count).to.be.eql(1) })
 
     // style
     time(90, function(){
       count = 0
-      o.style('color', 'red') })
+      o.style('display', 'none') })
 
     time(100, function(){
       expect(count).to.be.eql(1)
-      o.style('color', 'red') })
+      o.style('display', 'none') })
 
     time(110, function(){
+      expect(o.style('display')).to.be.eql('none')
       expect(count).to.be.eql(1) })
 
     time(120, done)
   })
 
+  /* istanbul ignore next */
   it('should memoize accessors individually across multiple elements', function(done) {
     if (typeof MutationObserver == 'undefined') return done()
 
@@ -567,6 +604,15 @@ describe('once', function() {
       expect(o.node().selectionEnd).to.be.eql(1) })
 
     time(30, done)
+  })
+
+  it('should allow functions that return functions', function() {
+    var o = once(node)('input', 'foo')
+      , fn = String
+
+    o.property('prop', wrap(fn))
+    expect(o.node().prop).to.be.equal(fn)
+    expect(o.property('prop')).to.be.equal(fn)
   })
 
 })
