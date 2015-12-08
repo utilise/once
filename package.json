@@ -10,7 +10,6 @@
   "author": "Pedram Emrouznejad (https://github.com/pemrouz)",
   "license": "pemrouz.mit-license.org",
   "devDependencies": {
-    "utilise.attr": "*",
     "chai": "^2.3.0",
     "utilise.client": "*",
     "coveralls": "^2.11.2",
@@ -24,6 +23,7 @@
   },
   "dependencies": {
     "d3": "^3.5.5",
+    "utilise.attr": "*",
     "utilise.emitterify": "*",
     "utilise.extend": "*",
     "utilise.is": "*",

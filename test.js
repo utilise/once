@@ -3,6 +3,7 @@ var expect = require('chai').expect
   , shim = !client && polyfill()
   , d3 = global.d3 = require('d3')
   , inherit = require('utilise.inherit')  
+  , proxy = require('utilise.proxy')  
   , wrap = require('utilise.wrap')  
   , attr = require('utilise.attr')
   , key = require('utilise.key')
@@ -436,6 +437,119 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<li></li>')
     o.remove()
     expect(node.innerHTML).to.be.eql('')
+  })
+
+  it('should memoize accessors', function(done) {
+    if (typeof MutationObserver == 'undefined') return done()
+
+    var increment = function() { ++count }
+      , conf = { attributes: true, characterData: true, subtree: true, childList: true }
+      , muto = new MutationObserver(increment)
+      , o = once(node)('div', 1)
+      , count 
+
+    muto.observe(o.node(), conf)
+
+    // text
+    time(0, function(){
+      count = 0
+      o.text('foo') })
+
+    time(10, function(){
+      expect(count).to.be.eql(1)
+      o.text('foo') })
+
+    time(20, function(){
+      expect(count).to.be.eql(1) })
+
+    // attr
+    time(30, function(){
+      count = 0
+      o.attr('foo', 'bar') })
+
+    time(40, function(){
+      expect(count).to.be.eql(1)
+      o.attr('foo', 'bar') })
+
+    time(50, function(){
+      expect(count).to.be.eql(1) })
+
+    // html
+    time(60, function(){
+      count = 0
+      o.html('bar') })
+
+    time(70, function(){
+      expect(count).to.be.eql(1)
+      o.html('bar') })
+
+    time(80, function(){
+      expect(count).to.be.eql(1) })
+
+    // style
+    time(90, function(){
+      count = 0
+      o.style('color', 'red') })
+
+    time(100, function(){
+      expect(count).to.be.eql(1)
+      o.style('color', 'red') })
+
+    time(110, function(){
+      expect(count).to.be.eql(1) })
+
+    time(120, done)
+  })
+
+  it('should memoize accessors individually across multiple elements', function(done) {
+    if (typeof MutationObserver == 'undefined') return done()
+
+    var increment1 = function() { ++count1 }
+      , increment2 = function() { ++count2 }
+      , conf = { attributes: true, characterData: true, subtree: true, childList: true }
+      , muto1 = new MutationObserver(increment1)
+      , muto2 = new MutationObserver(increment2)
+      , o = once(node)('div', [1, 2])
+      , count1 = 0
+      , count2 = 0
+
+    muto1.observe(node.children[0], conf)
+    muto2.observe(node.children[1], conf)
+
+    time(0, function(){
+      o.text('foo') })
+
+    time(10, function(){
+      expect(count1).to.be.eql(1)
+      expect(count2).to.be.eql(1)
+      node.children[1].textContent = 'bar' })
+
+    time(20, function(){
+      count1 = count2 = 1
+      o.text('bar') })
+
+    time(30, function(){
+      expect(count1).to.be.eql(2)
+      expect(count2).to.be.eql(1) })
+
+    time(40, done)
+  })
+
+  it('should not reset text cursor pos', function(done) {
+    var o = once(node)('input', 1)
+
+    time(0, function(){
+      o.property('value', 'foo') })
+
+    time(10, function(){
+      o.node().selectionStart = o.node().selectionEnd = 1
+      o.property('value', 'foo') })
+
+    time(20, function(){
+      expect(o.node().selectionStart).to.be.eql(1)
+      expect(o.node().selectionEnd).to.be.eql(1) })
+
+    time(30, done)
   })
 
 })
