@@ -552,6 +552,23 @@ describe('once', function() {
     time(30, done)
   })
 
+  it('should memoize accessors with functions as values', function(done) {
+    var o = once(node)('input', 'foo')
+
+    time(0, function(){
+      o.property('value', String) })
+
+    time(10, function(){
+      o.node().selectionStart = o.node().selectionEnd = 1
+      o.property('value', String) })
+
+    time(20, function(){
+      expect(o.node().selectionStart).to.be.eql(1)
+      expect(o.node().selectionEnd).to.be.eql(1) })
+
+    time(30, done)
+  })
+
 })
 
 function polyfill(){
