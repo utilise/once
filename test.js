@@ -458,16 +458,34 @@ describe('once', function() {
   it('should allow .each', function() {
     var o = once(node)('div', ['foo', 'bar'])
       .each(function(d){ this.foo = d })
+      .each(function(d){ this.foo = 'baz' })
 
-    expect(node.childNodes[0].foo).to.eql('foo')
-    expect(node.childNodes[1].foo).to.eql('bar')
+    expect(node.childNodes[0].foo).to.eql('baz')
+    expect(node.childNodes[1].foo).to.eql('baz')
   })
 
   it('should allow .datum', function() {
     var o = once(node)('div', 'foo')
       .datum('bar')
+      .datum('baz')
 
-    expect(node.childNodes[0].__data__).to.eql('bar')
+    expect(node.childNodes[0].__data__).to.eql('baz')
+  })
+
+  it('should allow .sel', function() {
+    var o = once(node)('div', 'boo')
+      .each(function(d){ this.foo = 'bar' })
+      .sel
+      .each(function(d){ this.foo = 'baz' })
+
+    expect(node.childNodes[0].foo).to.eql('baz')
+
+    var o = once(node)('div', 'foo')
+      .datum('bar')
+      .sel
+      .each(function(d){ this.foo = d })
+
+    expect(node.childNodes[0].foo).to.eql('bar')
   })
 
   /* istanbul ignore next */
