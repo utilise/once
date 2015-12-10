@@ -308,7 +308,7 @@ describe('once', function() {
 
     node.firstChild.on('click', function(d){ result1 = d })
     
-    event = document.createEvent("Event")
+    var event = document.createEvent("Event")
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
     expect(result1).to.eql(1)
@@ -320,7 +320,7 @@ describe('once', function() {
 
     el.on('click', function(d){ result2 = d })
     
-    event = document.createEvent("Event")
+    var event = document.createEvent("Event")
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
     expect(result2).to.eql(1)
@@ -333,7 +333,7 @@ describe('once', function() {
     node.firstChild.on('click.ns1', function(d){ result1 = d })
     el.on('click.ns2', function(d){ result2 = d })
     
-    event = document.createEvent("Event")
+    var event = document.createEvent("Event")
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
     expect(result1).to.eql(1)
@@ -353,7 +353,7 @@ describe('once', function() {
     , el.on('click.ns2', function(d){ result2 += d })
     )
     
-    event = document.createEvent("Event")
+    var event = document.createEvent("Event")
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
     expect(result1).to.eql(1)
@@ -378,7 +378,7 @@ describe('once', function() {
     node.firstChild.on('click', expects)
     el.on('click', expects)
 
-    event = document.createEvent("Event")
+    var event = document.createEvent("Event")
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
   })
@@ -491,6 +491,7 @@ describe('once', function() {
   /* istanbul ignore next */
   it('should memoize accessors', function(done) {
     if (typeof MutationObserver == 'undefined') return done()
+    if (~window.navigator.userAgent.indexOf('Trident')) return done() // strange muto error on ie
 
     var increment = function() { ++count }
       , conf = { attributes: true, characterData: true, subtree: true, childList: true }
@@ -558,6 +559,7 @@ describe('once', function() {
   /* istanbul ignore next */
   it('should memoize accessors individually across multiple elements', function(done) {
     if (typeof MutationObserver == 'undefined') return done()
+    if (~window.navigator.userAgent.indexOf('Trident')) return done() // strange muto error on ie
 
     var increment1 = function() { ++count1 }
       , increment2 = function() { ++count2 }
