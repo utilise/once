@@ -643,6 +643,31 @@ describe('once', function() {
     expect(o.property('state.value')).to.be.equal(5)
   })
 
+  it('should deeply get/set properties', function() {
+    var o = once(node)('input', 'foo')
+
+    o.property('state.value', 5)
+    expect(o.node().state.value).to.be.eql(5)
+    expect(o.property('state.value')).to.be.equal(5)
+  })
+
+  it('should proxy draw function', function() {
+    var o = once(node)
+      , els = o('div', [1, 2])
+      , result1, result2, result3
+
+    node.draw = function() { result1 = true }
+    node.children[0].draw = function() { result2 = true }
+    node.children[1].draw = function() { result3 = true }
+
+    expect(o.draw()).to.be.eql(o)
+    expect(result1).to.be.ok
+    
+    expect(els.draw()).to.be.eql(els)
+    expect(result2).to.be.ok
+    expect(result3).to.be.ok
+  })
+
 })
 
 function polyfill(){

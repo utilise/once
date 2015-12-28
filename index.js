@@ -81,8 +81,22 @@ function accessors(o, els){
   ;['text', 'property', 'attr', 'style', 'html', 'classed', 'each', 'node', 'datum', 'remove'].map(function(op){
     o[op] = memoize(els, op, o)
   })
+
+  ;['draw'].map(lookup(o, els))
   
   return o
+}
+
+function lookup(o, els) {
+  return function(op){
+    o[op] = function() {
+      var args = arguments
+      els.each(function(){
+        this[op].apply(this, args)
+      })
+      return o
+    }
+  }
 }
 
 function events(o, els){
