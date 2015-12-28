@@ -4,6 +4,7 @@ var emitterify = require('utilise.emitterify')
   , wrap       = require('utilise.wrap')  
   , sall       = require('utilise.sall')  
   , sel        = require('utilise.sel')  
+  , key        = require('utilise.key')  
   , is         = require('utilise.is')  
   , to         = require('utilise.to')  
 
@@ -116,15 +117,17 @@ function events(o, els){
 }
 
 function memoize(els, op, o) {
-  var fn = els[op]
-    , skip = ['each', 'datum', 'remove', 'classed']
-    , singular = op == 'html' || op == 'text'
-    , classed = op == 'classed'
+  var singular = op == 'html' || op == 'text'
+    , property = op == 'property'
+    , classed  = op == 'classed'
+    , skip     = ['each', 'datum', 'remove', 'classed']
+    , fn       = els[op]
 
   return function(name, value){
     if (singular) value = name
 
-    return classed  && arguments.length < 2         ? (fn.apply(els, arguments))
+    return property                                 ? (deepProperty(fn, els, arguments))
+        :  classed  && arguments.length < 2         ? (fn.apply(els, arguments))
         :  is.in(skip)(op)                          ? (fn.apply(els, arguments), o)
         :  singular && arguments.length < 1         ? (fn.apply(els, arguments))
         : !singular && arguments.length < 2         ? (fn.apply(els, arguments))
@@ -135,7 +138,15 @@ function memoize(els, op, o) {
             if (current !== target) singular ? sel(this)[op](value) : sel(this)[op](name, value)
           }), o)
   }
+}
 
+function deepProperty(fn, els, args) {
+  var name  = args[0] 
+    , value = args[1]
+
+  return !is.in(name)('.') ? fn.apply(els, args)
+       : args.length == 2  ? els.each(function(){ key(name, value)(this) })
+                           : key(name)(els.node())
 }
 
 function clone(el){

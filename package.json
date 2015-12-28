@@ -28,6 +28,7 @@
     "utilise.emitterify": "*",
     "utilise.extend": "*",
     "utilise.is": "*",
+    "utilise.key": "*",
     "utilise.sall": "*",
     "utilise.sel": "*",
     "utilise.to": "*",

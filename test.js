@@ -635,6 +635,14 @@ describe('once', function() {
     expect(o.property('prop')).to.be.equal(fn)
   })
 
+  it('should deeply get/set properties', function() {
+    var o = once(node)('input', 'foo')
+
+    o.property('state.value', 5)
+    expect(o.node().state.value).to.be.eql(5)
+    expect(o.property('state.value')).to.be.equal(5)
+  })
+
 })
 
 function polyfill(){
