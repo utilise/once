@@ -156,11 +156,15 @@ function memoize(els, op, o) {
 
 function deepProperty(fn, els, args) {
   var name  = args[0] 
-    , value = args[1]
 
   return !is.in(name)('.') ? fn.apply(els, args)
-       : args.length == 2  ? els.each(function(){ key(name, value)(this) })
+       : args.length == 2  ? els.each(set)
                            : key(name)(els.node())
+
+  function set() {
+    var value = is.fn(args[1]) ? args[1].apply(this, arguments) : args[1]
+    key(name, value)(this)
+  }
 }
 
 function clone(el){

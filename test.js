@@ -649,6 +649,10 @@ describe('once', function() {
     o.property('state.value', 5)
     expect(o.node().state.value).to.be.eql(5)
     expect(o.property('state.value')).to.be.equal(5)
+
+    o.property('state.value', function(d){ return d + 'bar' })
+    expect(o.node().state.value).to.be.eql('foobar')
+    expect(o.property('state.value')).to.be.equal('foobar')
   })
 
   it('should proxy draw function', function() {
