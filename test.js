@@ -2,6 +2,7 @@ var expect = require('chai').expect
   , client = require('utilise.client')
   , shim = !client && polyfill()
   , d3 = global.d3 = require('d3')
+  , emitterify = require('utilise.emitterify')  
   , inherit = require('utilise.inherit')  
   , wrap = require('utilise.wrap')  
   , attr = require('utilise.attr')
@@ -670,6 +671,16 @@ describe('once', function() {
     expect(els.draw()).to.be.eql(els)
     expect(result2).to.be.ok
     expect(result3).to.be.ok
+  })
+
+  it('should work with existing emitterified node', function() {
+    var div = emitterify(document.createElement('div'))
+      , host = div.host = node
+      , result
+      
+    once(node).on('foo', function() { result = true })
+    once(div).emit('foo')
+    expect(result).to.be.ok
   })
 
 })

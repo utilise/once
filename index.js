@@ -102,10 +102,10 @@ function lookup(o, els) {
 function events(o, els){
   els.each(function(){ 
     var self = this
-
-    if (self.on) return
+    if (self.evented) return
     if (!self.host) emitterify(self) 
-
+    self.evented = true
+  
     ;['on', 'once', 'emit'].map(function(op){ 
       if (self.host) return self[op] = self.host[op] 
       var fn = self[op]
