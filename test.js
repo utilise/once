@@ -701,6 +701,20 @@ describe('once', function() {
     expect(node.children[2].innerHTML).to.be.eql('2')
   })
 
+  it('should allow parameterising node type by data', function() {
+    var o = once(node)
+    
+    o(type, [1, 2, 3])
+
+    expect(node.innerHTML).to.be.eql('<el-1 class="fix"></el-1><el-2 class="fix"></el-2><el-3 class="fix"></el-3>')
+
+    function type() {
+      function tag(d) { return el('el-' + d) }
+      tag.toString = function() { return '.fix' }
+      return tag
+    }
+  })
+
 })
 
 function polyfill(){
