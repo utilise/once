@@ -38,6 +38,7 @@ function spawn(parents){
 
       el.each(push(els))
         .each(function(){ this.draw && this.draw() })
+        .order()
     })
 
     return extend(once(els = sall()(els)))({ 

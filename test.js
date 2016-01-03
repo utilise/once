@@ -683,6 +683,24 @@ describe('once', function() {
     expect(result).to.be.ok
   })
 
+  it('should always match data with node order', function() {
+    var o = once(node)
+    
+    o('li', [1, 2, 3], String)
+      .text(String)
+
+    expect(node.children[0].innerHTML).to.be.eql('1')
+    expect(node.children[1].innerHTML).to.be.eql('2')
+    expect(node.children[2].innerHTML).to.be.eql('3')
+
+    o('li', [3, 1, 2], String)
+      .text(String)
+      
+    expect(node.children[0].innerHTML).to.be.eql('3')
+    expect(node.children[1].innerHTML).to.be.eql('1')
+    expect(node.children[2].innerHTML).to.be.eql('2')
+  })
+
 })
 
 function polyfill(){
