@@ -364,6 +364,8 @@ describe('once', function() {
   it('should be able to chain after event', function(){
     var el = once(node)('div', 1)
     expect(el.on('event', String)).to.eql(el)
+    expect(el.emit('event')).to.eql(el)
+    expect(el.node().emit('event')).to.eql(el.node())
   })
 
   it('should set d3.event', function(done){
