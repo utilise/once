@@ -717,6 +717,28 @@ describe('once', function() {
     }
   })
 
+  it('should not proceed with setters that are undefined/null', function() {
+    var o = once(node)('input', 'foo')
+      , fn = String
+      , el = o.node()
+
+    el.prop = 'foo'
+    o.property('prop', undefined)
+    expect(el.prop).to.be.equal('foo')
+
+    el.prop = 'foo'
+    o.property('prop', null)
+    expect(el.prop).to.be.eql(null)
+
+    el.prop = 'foo'
+    o.property('prop', wrap(undefined))
+    expect(el.prop).to.be.equal('foo')
+
+    el.prop = 'foo'
+    o.property('prop', wrap(null))
+    expect(el.prop).to.be.equal(null)
+  })
+
 })
 
 function polyfill(){
