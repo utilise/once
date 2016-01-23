@@ -1,9 +1,9 @@
 var expect = require('chai').expect
   , client = require('utilise.client')
   , shim = !client && polyfill()
-  , d3 = global.d3 = require('d3')
+  , d3 = window.d3 = require('d3')
   , emitterify = require('utilise.emitterify')  
-  , inherit = require('utilise.inherit')  
+  , identity = require('utilise.identity')  
   , wrap = require('utilise.wrap')  
   , attr = require('utilise.attr')
   , time = require('utilise.time')
@@ -46,6 +46,7 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('')
   })
 
+  // NOTE: enter/exit now functions
   it('should be able to extend enter/update/exit selection', function() {
     once(node)
       ('li', [1,2])
@@ -54,16 +55,18 @@ describe('once', function() {
 
     expect(node.innerHTML).to.be.eql('<li class="sth">1</li><li class="sth">2</li>')
 
-    once(node)('li', [1,2,3])
-      .enter
-      .classed('new', true)
+    once(node)
+      ('li', [1,2,3])
+        .enter()
+        .classed('new', true)
 
     expect(node.innerHTML).to.be.eql('<li class="sth">1</li><li class="sth">2</li><li class="new"></li>')
 
-    var out = once(node)('li', [1,2])
-      .exit
-      .node()
-      .className
+    var out = once(node)
+      ('li', [1,2])
+        .exit()
+        .node()
+        .className
 
     expect(node.innerHTML).to.be.eql('<li class="sth">1</li><li class="sth">2</li>')
     expect(out).to.be.eql('new')
@@ -97,6 +100,63 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<li>1<a>3</a><a>4</a></li><li>2<a>3</a><a>4</a></li>')
   })
 
+  it('should set directly', function() {
+    once(node).text('foo')
+    expect(node.innerHTML).to.be.eql('foo')
+
+    once(node).html('<li>bar</li>')
+    expect(node.innerHTML).to.be.eql('<li>bar</li>')
+
+    once(node)('li', 1).attr('foo', 'baz')
+    expect(node.firstChild.getAttribute('foo')).to.be.eql('baz')
+  })
+
+  it('should not wipe children if existing text node', function() {
+    once(node)
+      .text('foo')
+        ('li', 1)
+
+    once(node)
+      .text('bar')
+
+    expect(node.innerHTML).to.be.eql('bar<li></li>')
+  })
+
+  it('should wipe children if no existing text node', function() {
+    once(node)
+      ('li', 1)
+
+    once(node)
+      .text('foo')
+
+    expect(node.innerHTML).to.be.eql('foo')
+  })
+
+  it('should not touch prop if not necessary', function() {
+    once(node).html('foo')
+    expect(node.innerHTML).to.be.eql('foo')
+    once(node).html('foo')
+
+    once(node)('li', 1)
+
+    once(node.lastChild).attr('foo', 'bar')
+    expect(node.lastChild.getAttribute('foo')).to.be.eql('bar')
+    once(node.lastChild).attr('foo', 'bar')
+  })
+
+  it('should remove class with falsy', function() {
+    once(node)('li', 1)
+    var o = once(node.lastChild)
+    
+    o.classed('foo', true)
+    expect(node.lastChild.className).to.be.eql('foo')
+    o.classed('foo', false)
+    expect(node.lastChild.className).to.be.eql('')
+    o.classed('foo', false)
+    expect(node.lastChild.className).to.be.eql('')
+
+  })
+
   it('should be able to chain scopes', function() {
     node.innerHTML = '<li><a></a></li>'
     once(node)('li')('a')
@@ -106,19 +166,21 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<li><a><i>1</i><i>2</i></a></li>')
   })
 
-  it('should be able to deal with real elements too', function() {
-    once(node)(el('foo-bar.classA[attr=value]'), 1)
-    once(node)(el('foo-bar.classA[attr=value]'), 1)
+  // NOTE: attr values now need to be quoted
+  it('should be able to deal with tag, css and attrs', function() {
+    once(node)('foo-bar.classA[attr="value"]', 1)
+    once(node)('foo-bar.classA[attr="value"]', 1)
     expect(node.firstElementChild.tagName.toLowerCase()).to.be.eql('foo-bar')
     expect(node.firstElementChild.className).to.be.eql('classA')
     expect(attr(node.firstElementChild, 'attr')).to.be.eql('value')
     expect(node.firstElementChild.innerHTML).to.be.eql('')
   })
 
-  it('should clone real elements', function() {
-    once(node)(el('foo-bar'), [1,2,3])
-    expect(node.childNodes.length).to.be.eql(3)
-  })
+  // no longer necessary to use el
+  // it('should clone real elements', function() {
+  //   once(node)('foo-bar', [1,2,3])
+  //   expect(node.childNodes.length).to.be.eql(3)
+  // })
 
   it('should process function for data', function() {
     once(node)
@@ -185,7 +247,17 @@ describe('once', function() {
   it('should inherit data', function() {
     once(node)
       ('ul', { foo:'bar' })
-        ('li', inherit)
+        ('li', identity)
+          ('a', key('foo'))
+            .text(String)
+    
+    expect(node.innerHTML).to.be.eql('<ul><li><a>bar</a></li></ul>')
+  })
+
+  it('should inherit data - shortcut', function() {
+    once(node)
+      ('ul', { foo:'bar' })
+        ('li', 1)
           ('a', key('foo'))
             .text(String)
     
@@ -198,11 +270,10 @@ describe('once', function() {
     expect(o['classed']).to.be.a('function')
     expect(o['html']).to.be.a('function')
     expect(o['attr']).to.be.a('function')
-    expect(o['style']).to.be.a('function')
+    // expect(o['style']).to.be.a('function')
     expect(o['on']).to.be.a('function')
     expect(o['each']).to.be.a('function')
     expect(o['node']).to.be.a('function')
-    expect(o['datum']).to.be.a('function')
     expect(o['property']).to.be.a('function')
   })
 
@@ -212,38 +283,39 @@ describe('once', function() {
     expect(o['classed']).to.be.a('function')
     expect(o['html']).to.be.a('function')
     expect(o['attr']).to.be.a('function')
-    expect(o['style']).to.be.a('function')
+    // expect(o['style']).to.be.a('function')
     expect(o['on']).to.be.a('function')
     expect(o['each']).to.be.a('function')
     expect(o['node']).to.be.a('function')
-    expect(o['datum']).to.be.a('function')
     expect(o['property']).to.be.a('function')
   })
 
-  it('should respect > selector', function() {
+  // NOTE: now default behaviour
+  it('should not need > selector', function() {
     once(node)
       ('ul', 1)
         ('li', 1)
           .text(String)
 
     once(node)
-      ('div > li', 2)
+      ('li', 2)
         .text(String)
           
     expect(node.innerHTML).to.be.eql('<ul><li>1</li></ul><li>2</li>')
   })
 
-  it('should not need data if selector is function', function() {
-    once(node)(function(){ return 'div' })
-    expect(node.innerHTML).to.be.eql('<div></div>')
-  })
+  // NOTE: Deprecated
+  // it('should not need data if selector is function', function() {
+  //   once(node)(function(){ return 'div' }, 1)
+  //   expect(node.innerHTML).to.be.eql('<div></div>')
+  // })
 
   it('should emitterify elements', function(){
-    var el = once(node)('div', 1).on('foo', String)
+    var o = once(node)('div', 1).on('foo', String)
 
-    expect(el.on).to.be.ok
-    expect(el.once).to.be.ok
-    expect(el.emit).to.be.ok
+    expect(o.on).to.be.ok
+    expect(o.once).to.be.ok
+    expect(o.emit).to.be.ok
 
     expect(node.on).to.be.ok
     expect(node.once).to.be.ok
@@ -256,7 +328,7 @@ describe('once', function() {
   })
 
   it('should emitterify idempotently', function(){
-    var el = once(node)('div', 1).on('foo', String)
+    var o = once(node)('div', 1).on('foo', String)
 
     expect(node.firstChild.on.foo).to.be.ok
     once(node)('div')
@@ -264,23 +336,23 @@ describe('once', function() {
   })
 
   it('should emit custom events', function(){
-    var el = once(node)('div', 1)
+    var o = once(node)('div', 1)
       , result1, result2
 
-    node.firstChild.on('synthetic', function(d){ result1 = d })
-    el.on('synthetic', function(d){ result2 = d })
+    node.firstChild.on('synthetic', function(d){ result1 += d })
+    o.on('synthetic', function(d){ result2 += d })
     
     // from selection
-    result1 = result2 = undefined
-    el.emit('synthetic', 5)
+    result1 = result2 = 0
+    o.emit('synthetic', 5)
     expect(result1).to.eql(5)
     expect(result2).to.eql(5)
 
     // from element
-    result1 = result2 = undefined
-    node.firstChild.emit('synthetic', 7)
-    expect(result1).to.eql(7)
-    expect(result2).to.eql(7)
+    result1 = result2 = 0
+    node.firstChild.emit('synthetic', 2)
+    expect(result1).to.eql(2)
+    expect(result2).to.eql(2)
   })
 
   it('should emit custom events - with namespaces', function(){
@@ -327,6 +399,15 @@ describe('once', function() {
     expect(result2).to.eql(1)
   })
 
+  it('should trigger non-namespaced custom events via emit', function(){
+    var o = once(node)('div', 1)
+      , result
+
+    node.lastChild.addEventListener('click', function(d){ result = d.detail })
+    o.emit('click', 5)
+    expect(result).to.eql(5)
+  })
+
   it('should emit dom events - with namespaces', function(){
     var el = once(node)('div', 1)
       , result1, result2
@@ -365,6 +446,7 @@ describe('once', function() {
     var el = once(node)('div', 1)
     expect(el.on('event', String)).to.eql(el)
     expect(el.emit('event')).to.eql(el)
+    expect(el.node().on('event')).to.eql(el.node())
     expect(el.node().emit('event')).to.eql(el.node())
   })
 
@@ -385,6 +467,23 @@ describe('once', function() {
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
   })
+
+  it('should not set d3.event if no d3', function(done){
+    var original = window.d3
+    window.d3 = undefined
+
+    var o = once(node)('div', 1)
+    
+    o.on('click', function(d){ 
+      expect(d).to.be.eql('foo')
+      expect(window.d3).to.be.not.ok
+      done()
+    })
+    o.emit('click', 'foo')
+
+    window.d3 = original
+  })
+
 
   it('should emit data if no param specified', function(done){
     var el = once(node)('div', { foo: 'bar' })
@@ -446,15 +545,16 @@ describe('once', function() {
     var o = once(node)('div', 'foo')
       .property('foo', String)
       .classed('foo', String)
-      .style('display', 'none')
+      // .style('display', 'none')
       .attr('foo', String)
       .text(String)
 
     expect(o.text()).to.eql('foo')
+    expect(o.html()).to.eql('foo')
     expect(o.classed('foo')).to.be.ok
     expect(o.classed('bar')).to.not.be.ok
     expect(o.attr('foo')).to.eql('foo')
-    expect(o.style('display')).to.eql('none')
+    // expect(o.style('display')).to.eql('none')
     expect(o.property('foo')).to.eql('foo')
   })
 
@@ -467,29 +567,31 @@ describe('once', function() {
     expect(node.childNodes[1].foo).to.eql('baz')
   })
 
-  it('should allow .datum', function() {
-    var o = once(node)('div', 'foo')
-      .datum('bar')
-      .datum('baz')
+  // NOTE: Deprecated
+  // it('should allow .datum', function() {
+  //   var o = once(node)('div', 'foo')
+  //     .datum('bar')
+  //     .datum('baz')
 
-    expect(node.childNodes[0].__data__).to.eql('baz')
-  })
+  //   expect(node.childNodes[0].__data__).to.eql('baz')
+  // })
 
-  it('should allow .sel', function() {
-    var o = once(node)('div', 'boo')
-      .each(function(d){ this.foo = 'bar' })
-      .sel
-      .each(function(d){ this.foo = 'baz' })
+  // NOTE: Deprecated
+  // it('should allow .sel', function() {
+  //   var o = once(node)('div', 'boo')
+  //     .each(function(d){ this.foo = 'bar' })
+  //     .sel
+  //     .each(function(d){ this.foo = 'baz' })
 
-    expect(node.childNodes[0].foo).to.eql('baz')
+  //   expect(node.childNodes[0].foo).to.eql('baz')
 
-    var o = once(node)('div', 'foo')
-      .datum('bar')
-      .sel
-      .each(function(d){ this.foo = d })
+  //   var o = once(node)('div', 'foo')
+  //     .datum('bar')
+  //     .sel
+  //     .each(function(d){ this.foo = d })
 
-    expect(node.childNodes[0].foo).to.eql('bar')
-  })
+  //   expect(node.childNodes[0].foo).to.eql('bar')
+  // })
 
   /* istanbul ignore next */
   it('should memoize accessors', function(done) {
@@ -544,17 +646,17 @@ describe('once', function() {
       expect(count).to.be.eql(1) })
 
     // style
-    time(90, function(){
-      count = 0
-      o.style('display', 'none') })
+    // time(90, function(){
+    //   count = 0
+    //   o.style('display', 'none') })
 
-    time(100, function(){
-      expect(count).to.be.eql(1)
-      o.style('display', 'none') })
+    // time(100, function(){
+    //   expect(count).to.be.eql(1)
+    //   o.style('display', 'none') })
 
-    time(110, function(){
-      expect(o.style('display')).to.be.eql('none')
-      expect(count).to.be.eql(1) })
+    // time(110, function(){
+    //   expect(o.style('display')).to.be.eql('none')
+    //   expect(count).to.be.eql(1) })
 
     time(120, done)
   })
@@ -710,8 +812,8 @@ describe('once', function() {
 
     expect(node.innerHTML).to.be.eql('<el-1 class="fix"></el-1><el-2 class="fix"></el-2><el-3 class="fix"></el-3>')
 
-    function type() {
-      function tag(d) { return el('el-' + d) }
+    function type(pd, pi) {
+      function tag(d, i) { return 'el-' + d }
       tag.toString = function() { return '.fix' }
       return tag
     }
@@ -739,28 +841,48 @@ describe('once', function() {
     expect(el.prop).to.be.equal(null)
   })
 
+  it('should match with attrs in selector', function() {
+    var o = once(node)
+
+    o('li[foo="bar"]', 1)
+    expect(node.innerHTML).to.eql('<li foo="bar"></li>')
+    
+    o('li[foo="baz"]', 1)
+    expect(node.innerHTML).to.eql('<li foo="bar"></li><li foo="baz"></li>')
+  })
+
+  it('should ignore detail on mouseevent', function() {
+    var o = once(node)('li', 'foo')
+      , event = new window.MouseEvent("click", { detail: 1 })
+      , result
+  
+    o.on('click', function(d){ result = d })
+    node.firstChild.dispatchEvent(event);    
+    expect(result).to.eql('foo')
+  })
+  
+  it('should allow switching selection if single argument a node', function() {
+    once(node)('li', 'foo')
+    once(node)('span', 'foo')
+
+    expect(once(node.firstChild)(node.lastChild).node()).to.eql(node.lastChild)
+    expect(once(node.lastChild)(node.firstChild).node()).to.eql(node.firstChild)
+  })
+
+  it('should remove attr if value is falsy', function() {
+    var o = once(node)('li', 1)
+
+    o.attr('foo', 'bar')
+    expect(o.attr('foo')).to.eql('bar')
+
+    o.attr('foo', false)
+    expect(o.attr('foo')).to.be.not.ok
+  })
+
 })
 
 function polyfill(){
   window = require("jsdom").jsdom('<div>').defaultView
   global.HTMLElement = window.HTMLElement
   global.document = window.document
-  document.createElement = createElement()
-}
-
-function createElement(){
-  var proxy = document.createElement
-  return function(){
-    var created = proxy.apply(this, arguments)
-    created.classList = { add: add(created) }
-    return created
-  }
-}
-
-function add(element){
-  return function(d){
-    // if (~element.className.indexOf(d)) return;
-    element.className += ' ' + d
-    element.className = element.className.trim()
-  }
 }
