@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "d3": "^3.5.5",
+    "utilise.identity": "*",
     "utilise.client": "*",
     "utilise.attr": "*",
     "utilise.extend": "*",
