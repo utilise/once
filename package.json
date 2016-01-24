@@ -5,7 +5,9 @@
   "scripts": {
     "test": "istanbul test ./node_modules/mocha/bin/_mocha --report html -- -R spec",
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && rm -rf ./coverage",
-    "cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec"
+    "cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec",
+    "version": "git add -A",
+    "postversion": "git push && git push --tags"
   },
   "author": "Pedram Emrouznejad (https://github.com/pemrouz)",
   "license": "pemrouz.mit-license.org",
