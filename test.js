@@ -8,7 +8,6 @@ var expect = require('chai').expect
   , attr = require('utilise.attr')
   , time = require('utilise.time')
   , key = require('utilise.key')
-  , el = require('utilise.el')
   , once = require('./')
   , node 
 
