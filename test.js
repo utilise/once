@@ -254,6 +254,16 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<ul><li><a>bar</a></li></ul>')
   })
 
+  it('should inherit data via shortcut', function() {
+    once(node)
+      ('ul', { foo:'bar' })
+        ('li', 1)
+          ('a', key('foo'))
+            .text(String)
+    
+    expect(node.innerHTML).to.be.eql('<ul><li><a>bar</a></li></ul>')
+  })
+
   it('should inherit data - shortcut', function() {
     once(node)
       ('ul', { foo:'bar' })
@@ -853,9 +863,10 @@ describe('once', function() {
 
   it('should ignore detail on mouseevent', function() {
     var o = once(node)('li', 'foo')
-      , event = new window.MouseEvent("click", { detail: 1 })
+      , event = document.createEvent("MouseEvent")
       , result
   
+    event.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null)
     o.on('click', function(d){ result = d })
     node.firstChild.dispatchEvent(event);    
     expect(result).to.eql('foo')
@@ -877,6 +888,14 @@ describe('once', function() {
 
     o.attr('foo', false)
     expect(o.attr('foo')).to.be.not.ok
+  })
+
+  it('should set tag, css and attrs in both modes', function() {
+    once(node)
+      ('.foo', ['foo'])
+        ('li[key="val"]', ['bar'])
+
+    expect(node.innerHTML).to.eql('<div class="foo"><li key="val"></li></div>')
   })
 
 })

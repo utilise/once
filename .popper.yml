@@ -1,0 +1,4 @@
+globals:
+  - <script src="https://cdn.polyfill.io/v1/polyfill.min.js"></script>
+
+tests: browserify test.js -i jsdom
