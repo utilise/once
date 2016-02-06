@@ -897,6 +897,22 @@ describe('once', function() {
     expect(node.innerHTML).to.eql('<div class="foo"><li key="val"></li></div>')
   })
 
+  it('should always update child data during optimisation', function() {
+    once(node)
+      ('.foo', { foo: true })
+        ('.bar', 1)
+
+    expect(node.firstChild.firstChild.__data__.foo).to.be.ok
+    expect(node.firstChild.firstChild.__data__.bar).to.not.be.ok
+
+    once(node)
+      ('.foo', { bar: true })
+        ('.bar', 1)
+
+    expect(node.firstChild.firstChild.__data__.foo).to.not.be.ok
+    expect(node.firstChild.firstChild.__data__.bar).to.be.ok
+  })
+
 })
 
 function polyfill(){
