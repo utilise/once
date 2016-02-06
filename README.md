@@ -2,7 +2,7 @@
 
 ## [![Coverage Status](https://coveralls.io/repos/utilise/once/badge.svg?branch=master)](https://coveralls.io/r/utilise/once?branch=master) [![Build](https://api.travis-ci.org/utilise/once.svg)](https://travis-ci.org/utilise/once) once
 
-Once is a declarative, terse and efficient way to manipulate the DOM for rendering. Once stamps out elements based on some data. It only updates the DOM with the minimal changes required to make it match the data. See the [main documentation here](https://github.com/utilise/utilise#--once). Below is just a cheat sheet of random examples:
+Once is a declarative, terse and [efficient](https://github.com/utilise/once/releases/tag/v1.0.2) way to manipulate the DOM for rendering. Once stamps out elements based on some data. It only updates the DOM with the minimal changes required to make it match the data. See the [main documentation here](https://github.com/utilise/utilise#--once). Below is just a cheat sheet of random examples:
 
 <br>
 
