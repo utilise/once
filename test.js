@@ -913,6 +913,14 @@ describe('once', function() {
     expect(node.firstChild.firstChild.__data__.bar).to.be.ok
   })
 
+  it('should not inherit parent data if data is fn', function() {
+    once(node)
+      ('.foo', { foo: true })
+        ('.bar', function(){ return 1 })
+
+    expect(node.firstChild.firstChild.__data__).to.eql(1)
+  })
+
 })
 
 function polyfill(){
