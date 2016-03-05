@@ -921,6 +921,35 @@ describe('once', function() {
     expect(node.firstChild.firstChild.__data__).to.eql(1)
   })
 
+  it('should pass index as implicit data', function(){
+    var els = once(node)('li', ['a', 'b', 'c'])
+      , indicies 
+
+    indicies = []
+    els.each(function(d, i){ indicies.push(i) })
+    expect(indicies).to.eql([0, 1, 2])
+
+    indicies = []
+    els.text(function(d, i){ indicies.push(i) })
+    expect(indicies).to.eql([0, 1, 2])
+
+    indicies = []
+    els.html(function(d, i){ indicies.push(i) })
+    expect(indicies).to.eql([0, 1, 2])
+
+    indicies = []
+    els.attr('foo', function(d, i){ indicies.push(i) })
+    expect(indicies).to.eql([0, 1, 2])
+
+    indicies = []
+    els.classed('foo', function(d, i){ indicies.push(i) })
+    expect(indicies).to.eql([0, 1, 2])
+
+    indicies = []
+    els.property('foo', function(d, i){ indicies.push(i) })
+    expect(indicies).to.eql([0, 1, 2])
+
+  })
 })
 
 function polyfill(){

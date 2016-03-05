@@ -16,8 +16,8 @@ function once(nodes, enter, exit) {
   c.exit  = function() { return once(exit) }
   c.text  = function(value){ 
     var fn = 'function' === typeof value
-    return arguments.length === 0 ? n[0].textContent : (this.each(function(d){
-      var r = '' + (fn ? value.call(this, d) : value), t
+    return arguments.length === 0 ? n[0].textContent : (this.each(function(d, i){
+      var r = '' + (fn ? value.call(this, d, i) : value), t
       if (this.textContent !== r) 
         !(t = this.firstChild) ? this.appendChild(document.createTextNode(r))
         : t.nodeName === '#text' ? t.nodeValue = r
@@ -26,37 +26,37 @@ function once(nodes, enter, exit) {
   }
   c.html = function(value){
     var fn = 'function' === typeof value
-    return arguments.length === 0 ? n[0].innerHTML : (this.each(function(d){
-      var r = '' + (fn ? value.call(this, d) : value), t
+    return arguments.length === 0 ? n[0].innerHTML : (this.each(function(d, i){
+      var r = '' + (fn ? value.call(this, d, i) : value), t
       if (this.innerHTML !== r) this.innerHTML = r
     }), this)
   }
   c.attr = function(key, value){
     var fn = 'function' === typeof value
-    return arguments.length === 1 ? n[0].getAttribute(key) : (this.each(function(d){
-      var r = fn ? value.call(this, d) : value
+    return arguments.length === 1 ? n[0].getAttribute(key) : (this.each(function(d, i){
+      var r = fn ? value.call(this, d, i) : value
            if (!r && this.hasAttribute(key)) this.removeAttribute(key)
       else if ( r && this.getAttribute(key) !== r) this.setAttribute(key, r)
     }), this) 
   }
   c.classed = function(key, value){
     var fn = 'function' === typeof value
-    return arguments.length === 1 ? n[0].classList.contains(key) : (this.each(function(d){
-      var r = fn ? value.call(this, d) : value
+    return arguments.length === 1 ? n[0].classList.contains(key) : (this.each(function(d, i){
+      var r = fn ? value.call(this, d, i) : value
            if ( r && !this.classList.contains(key)) this.classList.add(key)
       else if (!r &&  this.classList.contains(key)) this.classList.remove(key)
     }), this) 
   }
   c.property = function(key, value){
     var fn = 'function' === typeof value
-    return arguments.length === 1 ? deep(key)(n[0]) : (this.each(function(d){
-      var r = fn ? value.call(this, d) : value
+    return arguments.length === 1 ? deep(key)(n[0]) : (this.each(function(d, i){
+      var r = fn ? value.call(this, d, i) : value
       if (r !== undefined && deep(key)(this) !== r) deep(key, function(){ return r })(this)
     }), this) 
   }
   c.each = function(fn){
     p = 0; while(node = n[p++])
-      fn.call(node, node.__data__, p)
+      fn.call(node, node.__data__, p-1)
     return this
   }
   c.remove = function(){
