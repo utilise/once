@@ -960,7 +960,17 @@ describe('once', function() {
     })
 
     el.emit('foo', 'bar')
+  })
 
+  it('should not spread event arguments, and should set index', function(){
+    var el = once(node)('li', [1, 2, 3])
+    
+    el.on('foo', function(d, i){ 
+      expect(d).to.be.eql(['a', 'b', 'c'])
+      expect(i).to.be.eql(1)
+    })
+
+    el.nodes[1].emit('foo', ['a', 'b', 'c'])
   })
 
 })

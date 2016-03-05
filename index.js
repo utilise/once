@@ -9,7 +9,7 @@ function once(nodes, enter, exit) {
         : [nodes]
 
   var p = n.length
-  while (p-- > 0) if (!n[p].evented) event(n[p])
+  while (p-- > 0) if (!n[p].evented) event(n[p], p)
 
   c.node  = function() { return n[0] }
   c.enter = function() { return once(enter) }
@@ -191,7 +191,7 @@ function once(nodes, enter, exit) {
 
 }
 
-function event(node) {
+function event(node, index) {
   if (!node.on) emitterify(node)
   var on = node.on
     , emit = node.emit
@@ -214,7 +214,7 @@ function event(node) {
     window.event = event || window.event
     if ('object' === typeof window.d3) window.d3.event = event
     var isCustom = event.constructor.name === 'CustomEvent' || ~(event.toString().indexOf('CustomEvent'))
-    emit(event.type, (isCustom && event.detail) || this.__data__)
+    emit(event.type, [(isCustom && event.detail) || this.__data__, index])
   }
 }
 
