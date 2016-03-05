@@ -948,12 +948,25 @@ describe('once', function() {
     indicies = []
     els.property('foo', function(d, i){ indicies.push(i) })
     expect(indicies).to.eql([0, 1, 2])
+  })
+
+  it('should make active event object accessible', function(){
+    var el = once(node)('li', 1)
+    
+    el.on('foo', function(d){ 
+      expect(window.event).to.be.ok
+      expect(window.event.detail).to.be.eql('bar')
+      expect(d).to.be.eql('bar')
+    })
+
+    el.emit('foo', 'bar')
 
   })
+
 })
 
 function polyfill(){
-  window = require("jsdom").jsdom('<div>').defaultView
+  window = require('jsdom').jsdom('<div>').defaultView
   global.HTMLElement = window.HTMLElement
   global.document = window.document
 }

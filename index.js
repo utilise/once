@@ -211,6 +211,7 @@ function event(node) {
   }
 
   function reemit(event){
+    window.event = event || window.event
     if ('object' === typeof window.d3) window.d3.event = event
     var isCustom = event.constructor.name === 'CustomEvent' || ~(event.toString().indexOf('CustomEvent'))
     emit(event.type, (isCustom && event.detail) || this.__data__)
