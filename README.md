@@ -38,7 +38,7 @@ once(node)
 
 ```js
 once(node)
-  ('.foo[attr=value]', [1, 2, 3])
+  ('.foo[attr=val]', [1, 2, 3])
     .text(d => d)
 ```
 
