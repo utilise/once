@@ -161,6 +161,22 @@ o('ul')
 </ul>
 ```
 
+##### Semantically key elements (default is by index)
+
+```js
+var o = once(node)
+
+o('li', [{ id: 'a' }, { id: 'b' }, { id: 'c' }], d => d.id)
+```
+
+```html
+<ul>
+  <li></li>
+  <li></li>
+  <li></li>
+</ul>
+```
+
 ##### Insert an element before another rather than appending at the end
 
 ```js
