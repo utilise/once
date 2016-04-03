@@ -87,6 +87,8 @@ function once(nodes, enter, exit) {
       , attrs = [], css = []
 
     p = lpar + 1
+
+    // reselect
     if (arguments.length === 1) {
       if ('string' !== typeof s) return once(s)
 
@@ -96,6 +98,7 @@ function once(nodes, enter, exit) {
       return once(tnodes)
     }
 
+    // shortcut
     if (d === 1 && 'string' === typeof s && arguments.length == 2) {
       while (--p > 0) { 
         parent = n[lpar - p]
@@ -105,6 +108,7 @@ function once(nodes, enter, exit) {
           if (parent.children[j].matches(s)) {
             tnodes[tnodes.length] = parent.children[j] 
             parent.children[j].__data__ = parent.__data__ || 1
+            if ('function' === typeof parent.children[j].draw) parent.children[j].draw()
             break
           }
         }
@@ -125,11 +129,13 @@ function once(nodes, enter, exit) {
             child.classList.add(css[i])
 
           child.__data__ = parent.__data__ || 1
+          if ('function' === typeof child.draw) child.draw()
         }
       }
       return once(tnodes, tenter, texit)
     }
 
+    // main loop
     while (--p > 0) {
       parent   = n[lpar - p]
       selector = 'function' === typeof s ? s(parent.__data__) : s
@@ -183,6 +189,7 @@ function once(nodes, enter, exit) {
           nodes[j-1].classList.add(css[i])
 
         nodes[j-1].__data__ = data[j-1]
+        if ('function' === typeof nodes[j-1].draw) nodes[j-1].draw()
       }
     }
 

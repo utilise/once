@@ -973,6 +973,25 @@ describe('once', function() {
     el.nodes[1].emit('foo', ['a', 'b', 'c'])
   })
 
+  it('should always call node.draw', function(){
+    var result = 0
+    HTMLElement.prototype.draw = function(){ result++ }
+
+    once(node)('li', { foo: 'bar' })
+    expect(result).to.be.eql(1)
+
+    once(node)('li', { foo: 'bar' })
+    expect(result).to.be.eql(2)
+
+    once(node)('span', 1)
+    expect(result).to.be.eql(3)
+
+    once(node)('span', 1)
+    expect(result).to.be.eql(4)
+
+    delete HTMLElement.prototype.draw
+  })
+
 })
 
 function polyfill(){
