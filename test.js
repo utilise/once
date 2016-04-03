@@ -40,7 +40,7 @@ describe('once', function() {
   })
 
   it('should remove elements by data', function() {
-    once(node)('li', [1,2,3])
+    once(node)('li', [1,2,3,4,5])
     once(node)('li', [])
     expect(node.innerHTML).to.be.eql('')
   })
@@ -255,7 +255,7 @@ describe('once', function() {
 
   it('should inherit data via shortcut', function() {
     once(node)
-      ('ul', { foo:'bar' })
+      ('ul', { foo: 'bar' })
         ('li', 1)
           ('a', key('foo'))
             .text(String)
@@ -299,7 +299,6 @@ describe('once', function() {
     expect(o['property']).to.be.a('function')
   })
 
-  // NOTE: now default behaviour
   it('should not need > selector', function() {
     once(node)
       ('ul', 1)
@@ -307,17 +306,17 @@ describe('once', function() {
           .text(String)
 
     once(node)
+      ('li', 1)
+        .text(String)
+          
+    expect(node.innerHTML).to.be.eql('<ul><li>1</li></ul><li>1</li>')
+
+    once(node)
       ('li', 2)
         .text(String)
           
     expect(node.innerHTML).to.be.eql('<ul><li>1</li></ul><li>2</li>')
   })
-
-  // NOTE: Deprecated
-  // it('should not need data if selector is function', function() {
-  //   once(node)(function(){ return 'div' }, 1)
-  //   expect(node.innerHTML).to.be.eql('<div></div>')
-  // })
 
   it('should emitterify elements', function(){
     var o = once(node)('div', 1).on('foo', String)
