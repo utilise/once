@@ -183,11 +183,11 @@ describe('once', function() {
 
   it('should process function for data', function() {
     once(node)
-      ('div', [{foo:'bar'},{foo:'baz'}])
+      ('div', [{foo:'bar'}, {foo:'baz'}, {foo:'boo'}])
         ('li', key('foo'))
           .text(String)
 
-    expect(node.innerHTML).to.be.eql('<div><li>bar</li></div><div><li>baz</li></div>')
+    expect(node.innerHTML).to.be.eql('<div><li>bar</li></div><div><li>baz</li></div><div><li>boo</li></div>')
   })
 
   it('should treat string data as one element', function() {

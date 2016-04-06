@@ -6,7 +6,7 @@
     "test": "istanbul test ./node_modules/mocha/bin/_mocha --report html -- -R spec",
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && rm -rf ./coverage",
     "cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec",
-    "build": "browserify index.js > once.js",
+    "build": "browserify index.js > once.js -s once",
     "version": "git add -A",
     "postversion": "git push && git push --tags"
   },
