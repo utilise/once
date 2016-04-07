@@ -257,10 +257,16 @@ describe('once', function() {
 
   it('should allow for conditional tagName', function() {
     once(node)
-      ('li', [{foo:'bar'}, {foo:'baz'}])
-        (key('foo'), 1)
+      ('li', [{ first:'foo', second: 'bar' }, { first:'baz', second: 'baz' }])
+        (key('first'), 1)
 
-    expect(node.innerHTML).to.be.eql('<li><bar></bar></li><li><baz></baz></li>')
+    expect(node.innerHTML).to.be.eql('<li><foo></foo></li><li><baz></baz></li>')
+
+    once(node)
+      ('li')
+        (key('second'), 1)
+
+    expect(node.innerHTML).to.be.eql('<li><foo></foo><bar></bar></li><li><baz></baz></li>')
   })
 
   it('should inherit data', function() {
