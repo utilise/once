@@ -1011,6 +1011,9 @@ describe('once', function() {
     delete HTMLElement.prototype.draw
   })
 
+  it('should have size api', function(){
+    expect(once(node)('li', [1,2,3]).size()).to.eql(3)
+  })
 })
 
 function polyfill(){
