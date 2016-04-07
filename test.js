@@ -71,10 +71,30 @@ describe('once', function() {
     expect(out).to.be.eql('new')
   })
 
-  it('should key elements by index', function() {
+  it('should key elements by index by default', function() {
     once(node)('li', [{id:1},{id:2},{id:3}])
     once(node)('li', [{id:3},{id:2}])
     expect(node.innerHTML).to.be.eql('<li></li><li></li>')
+  })
+
+  it('should key elements', function() {
+    var id = key('id')
+      , t  = key('t')
+
+    once(node)('li', [
+      { id:1, t: 'a' }
+    , { id:2, t: 'b' }
+    , { id:3, t: 'c' }
+    ], id).text(t)
+
+    once(node)('li', [
+      { id:3, t: 'd' }
+    , { id:2, t: 'e' }
+    ], id).text(t)
+
+    expect(node.innerHTML).to.be.eql('<li>d</li><li>e</li>')
+    expect(node.children[0].__data__.id).to.be.eql(3)
+    expect(node.children[1].__data__.id).to.be.eql(2)
   })
 
   it('should insert before', function() {

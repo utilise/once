@@ -97,18 +97,17 @@ function once(nodes, enter, exit) {
     }
 
     // shortcut
-    if (d === 1 && 'string' === typeof s && arguments.length == 2) {
+    if (d === 1 && arguments.length == 2) {
       while (n[++p]) { 
         j = n[p].children.length
         while (n[p].children[--j])  {
           if (n[p].children[j].matches(s)) {
-            tnodes[++t] = n[p].children[j]
+            (tnodes[++t] = n[p].children[j]).__data__ = n[p].__data__ || 1
             break
           }
         }
 
-        if (j < 0) n[p].appendChild(tnodes[++t] = tenter[tenter.length] = create('', s))
-        tnodes[t].__data__ = n[p].__data__ || 1
+        if (j < 0) n[p].appendChild(tnodes[++t] = tenter[tenter.length] = create(s.call ? s(n[p].__data__ || 1, 0) : s, [n[p].__data__ || 1], 0))
         if ('function' === typeof tnodes[t].draw) tnodes[t].draw()
       }
 
@@ -125,23 +124,29 @@ function once(nodes, enter, exit) {
       if (!data)                      data = []
       if (data.constructor !== Array) data = [data]
       
+      if (k) {
+        byKey(selector, data, k, b, n[p], tnodes, tenter, texit)
+        continue
+      }
+
       l = -1
       j = -1
 
       while (n[p].children[++j]) { 
         if (!n[p].children[j].matches(selector)) continue
-        if (++l >= data.length) { 
+        if (++l >= data.length) { // exit
           n[p].removeChild(texit[texit.length] = n[p].children[j]), --j
           continue 
         }
 
-        (tnodes[++t] = n[p].children[j]).__data__ = data[l]
+        (tnodes[++t] = n[p].children[j]).__data__ = data[l] // update
         if ('function' === typeof n[p].children[j].draw) n[p].children[j].draw()
       }
 
+      // enter
       if (typeof selector === 'string') { 
         n[p].templates = n[p].templates || {}
-        n[p].templates[selector] = n[p].templates[selector] || create('', selector)
+        n[p].templates[selector] = n[p].templates[selector] || create(selector, [], 0)
         while (++l < data.length) { 
           (b ? n[p].insertBefore(tnodes[++t] = tenter[tenter.length] = n[p].templates[selector].cloneNode(false), n[p].querySelector(b)) 
              : n[p].appendChild( tnodes[++t] = tenter[tenter.length] = n[p].templates[selector].cloneNode(false)))
@@ -150,14 +155,13 @@ function once(nodes, enter, exit) {
         }
       } else {
         while (++l < data.length) { 
-          (b ? n[p].insertBefore(tnodes[++t] = tenter[tenter.length] = create(selector(data[l], l) || 'div', selector.toString()), n[p].querySelector(b)) 
-             : n[p].appendChild( tnodes[++t] = tenter[tenter.length] = create(selector(data[l], l) || 'div', selector.toString())))
-             .__data__ = data[l]
+          (b ? n[p].insertBefore(tnodes[++t] = tenter[tenter.length] = create(selector, data, l), n[p].querySelector(b)) 
+             : n[p].appendChild( tnodes[++t] = tenter[tenter.length] = create(selector, data, l)))
           if ('function' === typeof tnodes[t].draw) tnodes[t].draw()
         }
       }
     }
-
+  
     return once(tnodes, tenter, texit)
   }
 
@@ -200,14 +204,15 @@ function proxy(fn, c) {
   }
 }
 
-function create(t, selector) {
+function create(s, d, j) {
   var i     = 0
     , attrs = []
     , css   = []
-    , tag   = t || rsplit.exec(selector)[1] || 'div'
+    , sel   = s.call ? s(d[j], j) : s
+    , tag   = rsplit.exec(sel)[1] || 'div'
     , node  = document.createElement(tag)
 
-  selector
+  ;(s.call ? s.toString() : s)
     .replace(/\[(.+?)="(.*?)"\]/g, function($1, $2, $3){ return attrs[attrs.length] = [$2, $3], '' })
     .replace(/\.([^.]+)/g, function($1, $2){ return css[css.length] = $2, ''})
 
@@ -217,5 +222,41 @@ function create(t, selector) {
   for (i = 0; i < css.length; i++) 
     node.classList.add(css[i])
 
+  node.__data__ = d[j] || 1
   return node
+}
+
+function byKey(selector, data, key, b, parent, tnodes, tenter, texit) {
+  var c = -1
+    , d = data.length
+    , k
+    , indexNodes = {}
+    , child
+    , next
+
+  while (parent.children[++c]) 
+    if (!parent.children[c].matches(selector)) continue
+    else indexNodes[key(parent.children[c].__data__)] = parent.children[c]
+
+  next = b ? parent.querySelector(b) : null
+
+  while (d--) {
+    if (child = indexNodes[k = key(data[d])])
+      if (child === true) continue
+      else child.__data__ = data[d]
+    else
+      tenter[tenter.length] = child = create(selector, data, d)
+    
+    indexNodes[k] = true
+
+    if (d == data.length - 1 || next !== child.nextSibling)
+      parent.insertBefore(child, next)
+
+    next = tnodes[tnodes.length] = child
+    if ('function' === typeof child.draw) child.draw()
+  }
+
+  for (c in indexNodes)
+    if (indexNodes[c] !== true)
+      parent.removeChild(texit[texit.length] = indexNodes[c])
 }
