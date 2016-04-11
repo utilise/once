@@ -645,37 +645,37 @@ describe('once', function() {
       count = 0
       o.text('foo') })
 
-    time(10, function(){
+    time(50, function(){
       expect(count).to.be.eql(1)
       o.text('foo') })
 
-    time(20, function(){
+    time(100, function(){
       expect(o.text()).to.be.eql('foo')
       expect(count).to.be.eql(1) })
 
     // attr
-    time(30, function(){
+    time(150, function(){
       count = 0
       o.attr('foo', 'bar') })
 
-    time(40, function(){
+    time(200, function(){
       expect(count).to.be.eql(1)
       o.attr('foo', 'bar') })
 
-    time(50, function(){
+    time(250, function(){
       expect(o.attr('foo')).to.be.eql('bar')
       expect(count).to.be.eql(1) })
 
     // html
-    time(60, function(){
+    time(300, function(){
       count = 0
       o.html('bar') })
 
-    time(70, function(){
+    time(350, function(){
       expect(count).to.be.eql(1)
       o.html('bar') })
 
-    time(80, function(){
+    time(400, function(){
       expect(o.html()).to.be.eql('bar')
       expect(count).to.be.eql(1) })
 
@@ -692,7 +692,7 @@ describe('once', function() {
     //   expect(o.style('display')).to.be.eql('none')
     //   expect(count).to.be.eql(1) })
 
-    time(120, done)
+    time(420, done)
   })
 
   /* istanbul ignore next */
@@ -715,20 +715,20 @@ describe('once', function() {
     time(0, function(){
       o.text('foo') })
 
-    time(10, function(){
+    time(50, function(){
       expect(count1).to.be.eql(1)
       expect(count2).to.be.eql(1)
       node.children[1].textContent = 'bar' })
 
-    time(20, function(){
+    time(100, function(){
       count1 = count2 = 1
       o.text('bar') })
 
-    time(30, function(){
+    time(150, function(){
       expect(count1).to.be.eql(2)
       expect(count2).to.be.eql(1) })
 
-    time(40, done)
+    time(200, done)
   })
 
   it('should not reset text cursor pos', function(done) {
@@ -737,15 +737,18 @@ describe('once', function() {
     time(0, function(){
       o.property('value', 'foo') })
 
-    time(10, function(){
-      o.node().selectionStart = o.node().selectionEnd = 1
+    time(50, function(){
+      o.node().selectionStart = 1
+      o.node().selectionEnd = 1
       o.property('value', 'foo') })
 
-    time(20, function(){
-      expect(o.node().selectionStart).to.be.eql(1)
+    time(100, function(){
+      console.log("b3", o.node().selectionEnd)
+
+      expect(o.node().selectionEnd).to.be.eql(1)
       expect(o.node().selectionEnd).to.be.eql(1) })
 
-    time(30, done)
+    time(150, done)
   })
 
   it('should memoize accessors with functions as values', function(done) {
@@ -754,15 +757,16 @@ describe('once', function() {
     time(0, function(){
       o.property('value', String) })
 
-    time(10, function(){
-      o.node().selectionStart = o.node().selectionEnd = 1
+    time(50, function(){
+      o.node().selectionStart = 1
+      o.node().selectionEnd = 1
       o.property('value', String) })
 
-    time(20, function(){
+    time(100, function(){
       expect(o.node().selectionStart).to.be.eql(1)
       expect(o.node().selectionEnd).to.be.eql(1) })
 
-    time(30, done)
+    time(150, done)
   })
 
   it('should allow functions that return functions', function() {
