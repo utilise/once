@@ -8,6 +8,7 @@ var expect = require('chai').expect
   , attr = require('utilise.attr')
   , time = require('utilise.time')
   , key = require('utilise.key')
+  , to = require('utilise.to')
   , once = require('./')
   , node 
 
@@ -743,8 +744,6 @@ describe('once', function() {
       o.property('value', 'foo') })
 
     time(100, function(){
-      console.log("b3", o.node().selectionEnd)
-
       expect(o.node().selectionEnd).to.be.eql(1)
       expect(o.node().selectionEnd).to.be.eql(1) })
 
@@ -953,30 +952,61 @@ describe('once', function() {
   it('should pass index as implicit data', function(){
     var els = once(node)('li', ['a', 'b', 'c'])
       , indicies 
+      , fn = function(d, i){ indicies.push([i, to.arr(this.parentNode.children).indexOf(this)]) }
 
     indicies = []
-    els.each(function(d, i){ indicies.push(i) })
-    expect(indicies).to.eql([0, 1, 2])
+    els.each(fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
 
     indicies = []
-    els.text(function(d, i){ indicies.push(i) })
-    expect(indicies).to.eql([0, 1, 2])
+    els.text(fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
 
     indicies = []
-    els.html(function(d, i){ indicies.push(i) })
-    expect(indicies).to.eql([0, 1, 2])
+    els.html(fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
 
     indicies = []
-    els.attr('foo', function(d, i){ indicies.push(i) })
-    expect(indicies).to.eql([0, 1, 2])
+    els.attr('foo', fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
 
     indicies = []
-    els.classed('foo', function(d, i){ indicies.push(i) })
-    expect(indicies).to.eql([0, 1, 2])
+    els.classed('foo', fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
 
     indicies = []
-    els.property('foo', function(d, i){ indicies.push(i) })
-    expect(indicies).to.eql([0, 1, 2])
+    els.property('foo', fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
+  })
+
+  it('should pass index as implicit data when keyed', function(){
+    var els = once(node)('li', ['a', 'b', 'c'], function(d){ return d })
+      , indicies 
+      , fn = function(d, i){ indicies.push([i, to.arr(this.parentNode.children).indexOf(this)]) }
+
+    indicies = []
+    els.each(fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
+
+    indicies = []
+    els.text(fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
+
+    indicies = []
+    els.html(fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
+
+    indicies = []
+    els.attr('foo', fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
+
+    indicies = []
+    els.classed('foo', fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
+
+    indicies = []
+    els.property('foo', fn)
+    expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
   })
 
   it('should make active event object accessible', function(){

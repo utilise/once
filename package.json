@@ -20,7 +20,8 @@
     "mocha": "^2.2.4",
     "mocha-lcov-reporter": "0.0.2",
     "utilise.emitterify": "*",
-    "utilise.key": "*"
+    "utilise.key": "*",
+    "utilise.to": "*"
   },
   "dependencies": {
     "d3": "^3.5.5",
