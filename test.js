@@ -546,10 +546,10 @@ describe('once', function() {
   })
 
   it('should emit shadowroot on host', function(){
-    node.innerHTML = "<div></div><span></span>"
+    node.innerHTML = "<li></li><span></span>"
     node.lastChild.host = node.firstChild
 
-    var el = once(node)('div', 1)
+    var el = once(node)('li', 1)
       , sr = once(node)('span', 1)
       , result
 
@@ -560,7 +560,11 @@ describe('once', function() {
     expect(result).to.eql('foo')
 
     result = undefined
-    node.lastChild.emit('event', 'bar')
+    el.emit('event', 'foo')
+    expect(result).to.eql('foo')
+
+    result = undefined
+    node.firstChild.emit('event', 'bar')
     expect(result).to.eql('bar')
   })
 
@@ -1053,6 +1057,21 @@ describe('once', function() {
 
   it('should have size api', function(){
     expect(once(node)('li', [1,2,3]).size()).to.eql(3)
+  })
+
+  it('should always deal with host node', function(){
+    node.innerHTML = "<div></div><span></span>"
+    node.lastChild.host = node.firstChild
+    
+    Object.defineProperty(node.lastChild, 'on', { 
+      get: z => node.firstChild.on 
+    , set: z => node.firstChild.on = z
+    })
+
+    once(node)('span', 1).on('foo.bar', String)
+    expect(node.lastChild.on.foo.bar)
+      .to.eql(node.firstChild.on.foo.bar)
+      .to.eql(String)
   })
 })
 

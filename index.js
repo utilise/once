@@ -171,6 +171,8 @@ function once(nodes, enter, exit) {
 }
 
 function event(node, index) {
+  node = node.host || node
+  if (node.evented) return
   if (!node.on) emitterify(node)
   var on = node.on
     , emit = node.emit
@@ -185,7 +187,7 @@ function event(node, index) {
 
   node.emit = function(type, detail, p) {
     var params = p || { detail: detail, bubbles: false, cancelable: false }
-    ;(node.host || node).dispatchEvent(new window.CustomEvent(type, params))
+    node.dispatchEvent(new window.CustomEvent(type, params))
     return node
   }
 
@@ -200,8 +202,9 @@ function event(node, index) {
 function proxy(fn, c) {
   return function(){
     var args = arguments
-    c.each(function(d){
-      this[fn] && this[fn].apply(this, args)
+    c.each(function(){
+      var node = this.host || this
+      node[fn] && node[fn].apply(node, args)
     }) 
     return c 
   }
