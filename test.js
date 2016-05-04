@@ -1073,6 +1073,11 @@ describe('once', function() {
       .to.eql(node.firstChild.on.foo.bar)
       .to.eql(String)
   })
+
+  it('should not confuse shadow host with anchor host', function(){
+    var el = once(node)('a[href="http://www.google.com/foo"]', 1)
+    expect(node.firstChild.evented).to.be.ok
+  })
 })
 
 function polyfill(){

@@ -171,7 +171,7 @@ function once(nodes, enter, exit) {
 }
 
 function event(node, index) {
-  node = node.host || node
+  node = node.host && node.host.nodeName ? node.host : node
   if (node.evented) return
   if (!node.on) emitterify(node)
   var on = node.on
