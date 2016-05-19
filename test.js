@@ -290,16 +290,6 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('<ul><li><a>bar</a></li></ul>')
   })
 
-  it('should inherit data - shortcut', function() {
-    once(node)
-      ('ul', { foo:'bar' })
-        ('li', 1)
-          ('a', key('foo'))
-            .text(String)
-    
-    expect(node.innerHTML).to.be.eql('<ul><li><a>bar</a></li></ul>')
-  })
-
   it('should have accessors on first scoping', function() {
     var o = once(node)
     expect(o['text']).to.be.a('function')
