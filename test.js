@@ -364,8 +364,8 @@ describe('once', function() {
     var o = once(node)('div', 1)
       , result1, result2
 
-    node.firstChild.on('synthetic', function(d){ result1 += d })
-    o.on('synthetic', function(d){ result2 += d })
+    node.firstChild.on('synthetic', function(e){ result1 += e.detail })
+    o.on('synthetic', function(e){ result2 += e.detail })
     
     // from selection
     result1 = result2 = 0
@@ -384,8 +384,8 @@ describe('once', function() {
     var el = once(node)('div', 1)
       , result1, result2
 
-    node.firstChild.on('synthetic.ns1', function(d){ result1 = d })
-    el.on('synthetic.ns2', function(d){ result2 = d })
+    node.firstChild.on('synthetic.ns1', function(e){ result1 = e.detail })
+    el.on('synthetic.ns2', function(e){ result2 = e.detail })
     
     // from selection
     result1 = result2 = undefined
@@ -404,31 +404,31 @@ describe('once', function() {
     var el = once(node)('div', 1)
       , result1, result2
 
-    node.firstChild.on('click', function(d){ result1 = d })
+    node.firstChild.on('click', function(e){ result1 = e.detail })
     
     var event = document.createEvent("Event")
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
-    expect(result1).to.eql(1)
+    expect(result1).to.eql(undefined)
   })
 
   it('should emit dom events - on o', function(){
     var el = once(node)('div', 1)
       , result1, result2
 
-    el.on('click', function(d){ result2 = d })
+    el.on('click', function(e){ result2 = e.detail })
     
     var event = document.createEvent("Event")
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
-    expect(result2).to.eql(1)
+    expect(result2).to.eql(undefined)
   })
 
   it('should trigger non-namespaced custom events via emit', function(){
     var o = once(node)('div', 1)
       , result
 
-    node.lastChild.addEventListener('click', function(d){ result = d.detail })
+    node.lastChild.addEventListener('click', function(e){ result = e.detail })
     o.emit('click', 5)
     expect(result).to.eql(5)
   })
@@ -437,14 +437,14 @@ describe('once', function() {
     var el = once(node)('div', 1)
       , result1, result2
 
-    node.firstChild.on('click.ns1', function(d){ result1 = d })
-    el.on('click.ns2', function(d){ result2 = d })
+    node.firstChild.on('click.ns1', function(e){ result1 = e.detail })
+    el.on('click.ns2', function(e){ result2 = e.detail })
     
     var event = document.createEvent("Event")
     event.initEvent('click', false, false)
     node.firstChild.dispatchEvent(event)
-    expect(result1).to.eql(1)
-    expect(result2).to.eql(1)
+    expect(result1).to.eql(undefined)
+    expect(result2).to.eql(undefined)
   })
 
   it('should not add duplicate listeners', function(){
@@ -452,16 +452,15 @@ describe('once', function() {
       , result1 = 0, result2 = 0
 
     /* istanbul ignore next */
-    ;( node.firstChild.on('click.ns1', function(d){ result1 += d })
-    , el.on('click.ns2', function(d){ result2 += d })
-    , node.firstChild.on('click.ns1', function(d){ result1 += d })
-    , el.on('click.ns2', function(d){ result2 += d })
-    , node.firstChild.on('click.ns1', function(d){ result1 += d })
-    , el.on('click.ns2', function(d){ result2 += d })
+    ;( node.firstChild.on('click.ns1', function(e){ result1 += e.detail })
+    , el.on('click.ns2', function(e){ result2 += e.detail })
+    , node.firstChild.on('click.ns1', function(e){ result1 += e.detail })
+    , el.on('click.ns2', function(e){ result2 += e.detail })
+    , node.firstChild.on('click.ns1', function(e){ result1 += e.detail })
+    , el.on('click.ns2', function(e){ result2 += e.detail })
     )
     
-    var event = document.createEvent("Event")
-    event.initEvent('click', false, false)
+    var event = new window.CustomEvent('click', { detail: 1, bubbles: false, cancelable: false })
     node.firstChild.dispatchEvent(event)
     expect(result1).to.eql(1)
     expect(result2).to.eql(1)
@@ -499,8 +498,8 @@ describe('once', function() {
 
     var o = once(node)('div', 1)
     
-    o.on('click', function(d){ 
-      expect(d).to.be.eql('foo')
+    o.on('click', function(e){ 
+      expect(e.detail).to.be.eql('foo')
       expect(window.d3).to.be.not.ok
       done()
     })
@@ -509,12 +508,11 @@ describe('once', function() {
     window.d3 = original
   })
 
-
-  it('should emit data if no param specified', function(done){
+  it('should be able to access element data', function(done){
     var el = once(node)('div', { foo: 'bar' })
       , i = 0
-      , expects = function(data){ 
-          expect(data).to.be.eql({ foo: 'bar' })
+      , expects = function(e){ 
+          expect(this.__data__).to.be.eql({ foo: 'bar' })
           if (++i == 4) done()
         }
 
@@ -543,7 +541,7 @@ describe('once', function() {
       , sr = once(node)('span', 1)
       , result
 
-    el.on('event.sr', function(d){ result = d })
+    el.on('event.sr', function(e){ result = e.detail })
 
     result = undefined
     sr.emit('event', 'foo')
@@ -882,15 +880,15 @@ describe('once', function() {
     expect(node.innerHTML).to.eql('<li foo="bar"></li><li foo="baz"></li>')
   })
 
-  it('should ignore detail on mouseevent', function() {
+  it('should respect detail on mouseevent', function() {
     var o = once(node)('li', 'foo')
       , event = document.createEvent("MouseEvent")
       , result
   
     event.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null)
-    o.on('click', function(d){ result = d })
-    node.firstChild.dispatchEvent(event);    
-    expect(result).to.eql('foo')
+    o.on('click', function(e){ result = e.detail })
+    node.firstChild.dispatchEvent(event)
+    expect(result).to.eql(1)
   })
   
   it('should allow switching selection if single argument a node', function() {
@@ -1003,23 +1001,11 @@ describe('once', function() {
     expect(indicies).to.eql([[0, 0], [1, 1], [2, 2]])
   })
 
-  it('should make active event object accessible', function(){
-    var el = once(node)('li', 1)
-    
-    el.on('foo', function(d){ 
-      expect(window.event).to.be.ok
-      expect(window.event.detail).to.be.eql('bar')
-      expect(d).to.be.eql('bar')
-    })
-
-    el.emit('foo', 'bar')
-  })
-
   it('should not spread event arguments, and should set index', function(){
     var el = once(node)('li', [1, 2, 3])
     
-    el.on('foo', function(d, i){ 
-      expect(d).to.be.eql(['a', 'b', 'c'])
+    el.on('foo', function(e, i){ 
+      expect(e.detail).to.be.eql(['a', 'b', 'c'])
       expect(i).to.be.eql(1)
     })
 
@@ -1054,8 +1040,8 @@ describe('once', function() {
     node.lastChild.host = node.firstChild
     
     Object.defineProperty(node.lastChild, 'on', { 
-      get: z => node.firstChild.on 
-    , set: z => node.firstChild.on = z
+      get: function(z) { return node.firstChild.on }
+    , set: function(z) { return node.firstChild.on = z }
     })
 
     once(node)('span', 1).on('foo.bar', String)
