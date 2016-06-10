@@ -186,7 +186,7 @@ function event(node, index) {
   }
 
   node.emit = function(type, detail, p) {
-    var params = p || { detail: detail, bubbles: false, cancelable: false }
+    var params = p || { detail: detail, bubbles: false, cancelable: true }
     node.dispatchEvent(new window.CustomEvent(type, params))
     return node
   }

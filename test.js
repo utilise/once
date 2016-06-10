@@ -1054,6 +1054,16 @@ describe('once', function() {
     var el = once(node)('a[href="http://www.google.com/foo"]', 1)
     expect(node.firstChild.evented).to.be.ok
   })
+
+  it('should emit cancelable events', function(done){
+    var el = once(node)('div', 1)
+    
+    el.on('event', function(e){
+      e.preventDefault()
+      expect(e.defaultPrevented).to.be.ok
+      done()
+    }).emit('event')
+  })
 })
 
 function polyfill(){
