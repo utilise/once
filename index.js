@@ -66,7 +66,8 @@ function once(nodes, enter, exit) {
   }
   c.remove = function(){
     this.each(function(d){
-      this.parentNode.removeChild(this)
+      var el = this.host || this
+      el.parentNode.removeChild(el)
     }) 
     return this
   }

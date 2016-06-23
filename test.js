@@ -568,6 +568,17 @@ describe('once', function() {
     expect(node.innerHTML).to.be.eql('')
   })
 
+  it('should remove host if shadow', function() {
+    node.innerHTML = "<li></li><span></span>"
+    node.lastChild.host = node.firstChild
+
+    once(node)
+      ('span')
+        .remove()
+
+    expect(node.innerHTML).to.be.eql('<span></span>')
+  })
+
   it('should allow accessors as getters as usual too', function() {
     var o = once(node)('div', 'foo')
       .property('foo', String)
@@ -1064,6 +1075,7 @@ describe('once', function() {
       done()
     }).emit('event')
   })
+
 })
 
 function polyfill(){
