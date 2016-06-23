@@ -194,7 +194,7 @@ function event(node, index) {
 
   function reemit(event){
     if ('object' === typeof window.d3) window.d3.event = event
-    emit(event.type, [event, index])
+    emit(event.type, [this.__data__, index, this, event])
   }
 }
 
