@@ -1085,7 +1085,7 @@ describe('once', function() {
       expect(e.type).to.be.eql('event')
       expect(e.detail).to.be.eql('bar')
       done()
-    }).emit('event', new window.CustomEvent('event', { detail: 'bar' }))
+    }).emit(new window.CustomEvent('event', { detail: 'bar' }))
   })
 
 })
