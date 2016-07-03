@@ -1078,6 +1078,16 @@ describe('once', function() {
     }).emit('event')
   })
 
+  it('should allow emitting arbitrary events', function(done){
+    var el = once(node)('div', 1)
+    
+    el.on('event', function(d, i, el, e){
+      expect(e.type).to.be.eql('event')
+      expect(e.detail).to.be.eql('bar')
+      done()
+    }).emit('event', new window.CustomEvent('event', { detail: 'bar' }))
+  })
+
 })
 
 function polyfill(){
