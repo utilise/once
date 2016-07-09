@@ -829,6 +829,19 @@ describe('once', function() {
     expect(result).to.be.ok
   })
 
+  it('should work with existing listeners', function() {
+    var div = emitterify(document.createElement('div'))
+      , result1, result2
+      
+    div.on('foo', function() { result1 = true })
+    once(div)
+      .on('foo', function() { result2 = true })
+      .emit('foo')
+
+    expect(result1).to.be.ok
+    expect(result2).to.be.ok
+  })
+
   it('should always match data with node order', function() {
     var o = once(node)
     

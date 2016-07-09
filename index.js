@@ -1,7 +1,8 @@
 'use strict'
 
 var emitterify = require('utilise.emitterify')  
-  , deep = require('utilise.key')  
+  , keys = require('utilise.keys')
+  , deep = require('utilise.key')
   , rsplit = /([^\.\[]*)/
 
 module.exports = once
@@ -177,6 +178,7 @@ function event(node, index) {
   if (!node.on) emitterify(node)
   var on = node.on
     , emit = node.emit
+    , old = keys(node.on)
 
   node.evented = true
 
@@ -192,6 +194,11 @@ function event(node, index) {
       : new window.CustomEvent(event, { detail: detail, bubbles: false, cancelable: true }))
     return node
   }
+
+  old.map(function(event){
+    node.on[event] = on[event]
+    node.on(event)
+  })
 
   function reemit(event){
     if ('object' === typeof window.d3) window.d3.event = event
