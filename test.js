@@ -1101,6 +1101,22 @@ describe('once', function() {
     }).emit(new window.CustomEvent('event', { detail: 'bar' }))
   })
 
+  it('should safely select closest ancestor across selections', function(){
+    window.Element.prototype.closest = window.Element.prototype.closest || function(tag){
+      return this.parentNode.nodeName.toLowerCase() == tag ? this.parentNode : null
+    }
+
+    once(node)
+      ('form', [1,2])
+        ('button', 1)
+
+    var forms = once(node)('button').closest('form')
+    expect(forms.nodes).to.be.eql([node.firstChild, node.lastChild])
+
+    var nothing = once(node)('button').closest('no-form')
+    expect(nothing.nodes).to.be.eql([])
+  })
+
 })
 
 function polyfill(){
