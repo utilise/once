@@ -64,7 +64,7 @@ function once(nodes, enter, exit) {
   }
   c.each = function(fn){
     p = -1; while(n[++p])
-      fn.call(n[p], n[p].__data__, p)
+      fn.call(n[p], n[p], n[p].__data__, p)
     return this
   }
   c.remove = function(){
