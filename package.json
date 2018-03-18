@@ -20,22 +20,17 @@
     "mocha": "^2.2.4",
     "mocha-lcov-reporter": "0.0.2",
     "popper": "*",
-    "utilise.emitterify": "*",
-    "utilise.key": "*",
-    "utilise.to": "*"
+    "utilise.to": "*",
+    "utilise.identity": "*",
+    "utilise.wrap": "*",
+    "utilise.attr": "*",
+    "utilise.time": "*",
+    "utilise.client": "*",
+    "d3": "^3.5.5"
   },
   "dependencies": {
-    "d3": "^3.5.5",
-    "utilise.attr": "*",
-    "utilise.client": "*",
-    "utilise.extend": "*",
-    "utilise.identity": "*",
-    "utilise.is": "*",
-    "utilise.overwrite": "*",
-    "utilise.sall": "*",
-    "utilise.sel": "*",
-    "utilise.time": "*",
-    "utilise.to": "*",
-    "utilise.wrap": "*"
+    "utilise.emitterify": "*",
+    "utilise.keys": "*",
+    "utilise.key": "*"
   }
 }
