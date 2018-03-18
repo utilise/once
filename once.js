@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.once = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.once = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 'use strict'
 
 var emitterify = require('utilise.emitterify')  
@@ -15,7 +15,7 @@ function once(nodes, enter, exit) {
         : [nodes]
 
   var p = n.length
-  while (p-- > 0) if (!n[p].evented) event(n[p], p)
+  while (p-- > 0) if (!n[p].on) event(n[p], p)
 
   c.node  = function() { return n[0] }
   c.enter = function() { return once(enter) }
@@ -24,7 +24,7 @@ function once(nodes, enter, exit) {
 
   c.text  = function(value){ 
     var fn = 'function' === typeof value
-    return arguments.length === 0 ? n[0].textContent : (this.each(function(d, i){
+    return arguments.length === 0 ? n[0].textContent : (this.each(function(n, d, i){
       var r = '' + (fn ? value.call(this, d, i) : value), t
       if (this.textContent !== r) 
         !(t = this.firstChild) ? this.appendChild(document.createTextNode(r))
@@ -34,14 +34,14 @@ function once(nodes, enter, exit) {
   }
   c.html = function(value){
     var fn = 'function' === typeof value
-    return arguments.length === 0 ? n[0].innerHTML : (this.each(function(d, i){
+    return arguments.length === 0 ? n[0].innerHTML : (this.each(function(n, d, i){
       var r = '' + (fn ? value.call(this, d, i) : value), t
       if (this.innerHTML !== r) this.innerHTML = r
     }), this)
   }
   c.attr = function(key, value){
     var fn = 'function' === typeof value
-    return arguments.length === 1 ? n[0].getAttribute(key) : (this.each(function(d, i){
+    return arguments.length === 1 ? n[0].getAttribute(key) : (this.each(function(n, d, i){
       var r = fn ? value.call(this, d, i) : value
            if (!r && this.hasAttribute(key)) this.removeAttribute(key)
       else if ( r && this.getAttribute(key) !== r) this.setAttribute(key, r)
@@ -49,7 +49,7 @@ function once(nodes, enter, exit) {
   }
   c.classed = function(key, value){
     var fn = 'function' === typeof value
-    return arguments.length === 1 ? n[0].classList.contains(key) : (this.each(function(d, i){
+    return arguments.length === 1 ? n[0].classList.contains(key) : (this.each(function(n, d, i){
       var r = fn ? value.call(this, d, i) : value
            if ( r && !this.classList.contains(key)) this.classList.add(key)
       else if (!r &&  this.classList.contains(key)) this.classList.remove(key)
@@ -57,19 +57,19 @@ function once(nodes, enter, exit) {
   }
   c.property = function(key, value){
     var fn = 'function' === typeof value
-    return arguments.length === 1 ? deep(key)(n[0]) : (this.each(function(d, i){
+    return arguments.length === 1 ? deep(key)(n[0]) : (this.each(function(n, d, i){
       var r = fn ? value.call(this, d, i) : value
       if (r !== undefined && deep(key)(this) !== r) deep(key, function(){ return r })(this)
     }), this) 
   }
   c.each = function(fn){
     p = -1; while(n[++p])
-      fn.call(n[p], n[p], n[p].__data__, p)
+      fn.call(n[p], n[p], n[p].state, p)
     return this
   }
   c.remove = function(){
-    this.each(function(d){
-      var el = this.host || this
+    this.each(function(){
+      var el = this.host && this.host.nodeName ? this.host : this
       el.parentNode.removeChild(el)
     }) 
     return this
@@ -111,15 +111,15 @@ function once(nodes, enter, exit) {
     if (d === 1 && arguments.length == 2) {
       while (n[++p]) { 
         j = n[p].children.length
-        selector = s.call ? s(n[p].__data__ || 1, 0) : s
+        selector = s.call ? s(n[p].state || 1, 0) : s
         while (n[p].children[--j])  {
           if (n[p].children[j].matches(selector)) {
-            (tnodes[++t] = n[p].children[j]).__data__ = n[p].__data__ || 1
+            (tnodes[++t] = n[p].children[j]).state = n[p].state || 1
             break
           }
         }
 
-        if (j < 0) n[p].appendChild(tnodes[++t] = tenter[tenter.length] = create(selector, [n[p].__data__ || 1], 0))
+        if (j < 0) n[p].appendChild(tnodes[++t] = tenter[tenter.length] = create(selector, [n[p].state || 1], 0))
         if ('function' === typeof tnodes[t].draw) tnodes[t].draw()
       }
 
@@ -128,10 +128,10 @@ function once(nodes, enter, exit) {
 
     // main loop
     while (n[++p]) {
-      selector = 'function' === typeof s ? s(n[p].__data__) : s
-      data     = 'function' === typeof d ? d(n[p].__data__) : d
+      selector = 'function' === typeof s ? s(n[p].state) : s
+      data     = 'function' === typeof d ? d(n[p].state) : d
       
-      if (d === 1)                    data = n[p].__data__ || [1]
+      if (d === 1)                    data = n[p].state || [1]
       if ('string' === typeof data)   data = [data]
       if (!data)                      data = []
       if (data.constructor !== Array) data = [data]
@@ -151,7 +151,7 @@ function once(nodes, enter, exit) {
           continue 
         }
 
-        (tnodes[++t] = n[p].children[j]).__data__ = data[l] // update
+        (tnodes[++t] = n[p].children[j]).state = data[l] // update
         if ('function' === typeof n[p].children[j].draw) n[p].children[j].draw()
       }
 
@@ -162,7 +162,7 @@ function once(nodes, enter, exit) {
         while (++l < data.length) { 
           (b ? n[p].insertBefore(tnodes[++t] = tenter[tenter.length] = n[p].templates[selector].cloneNode(false), n[p].querySelector(b)) 
              : n[p].appendChild( tnodes[++t] = tenter[tenter.length] = n[p].templates[selector].cloneNode(false)))
-             .__data__ = data[l]
+             .state = data[l]
           if ('function' === typeof tnodes[t].draw) tnodes[t].draw()
         }
       } else {
@@ -179,37 +179,35 @@ function once(nodes, enter, exit) {
 
 }
 
-function event(node, index) {
-  node = node.host && node.host.nodeName ? node.host : node
-  if (node.evented) return
-  if (!node.on) emitterify(node)
-  var on = node.on
-    , emit = node.emit
-    , old = keys(node.on)
+// TODO: factor out - need to fix nbuild / non-utilise deps
+function event(node) {
+  // node = node.host && node.host.nodeName ? node.host : node
+  if (node.on) return
+  node.listeners = {}
 
-  node.evented = true
-
-  node.on = function(type) {
-    node.addEventListener(type.split('.').shift(), reemit)
-    on.apply(node, arguments)
-    return node
+  const on = o => {
+    const type = o.type.split('.').shift()
+    if (!node.listeners[type])
+      node.addEventListener(type, node.listeners[type] = 
+        event => (!event.detail || !event.detail.emitted ? emit(type, event) : 0)
+      )
   }
 
-  node.emit = function(event, detail) {
-    node.dispatchEvent(event instanceof window.Event 
-      ? event
-      : new window.CustomEvent(event, { detail: detail, bubbles: false, cancelable: true }))
-    return node
+  const off = o => {
+    if (!node.on[o.type].length) {
+      node.removeEventListener(o.type, node.listeners[o.type])
+      delete node.listeners[o.type]
+    }
   }
 
-  old.map(function(event){
-    node.on[event] = on[event]
-    node.on(event)
-  })
+  emitterify(node, { on, off })
+  const { emit } = node
 
-  function reemit(event){
-    if ('object' === typeof window.d3) window.d3.event = event
-    emit(event.type, [this.__data__, index, this, event])
+  node.emit = function(type, params){
+    const detail = { params, emitted: true }
+        , event = new CustomEvent(type, { detail, bubbles: false, cancelable: true })
+    node.dispatchEvent(event)
+    return emit(type, event)
   }
 }
 
@@ -217,7 +215,7 @@ function proxy(fn, c) {
   return function(){
     var args = arguments
     c.each(function(){
-      var node = this.host || this
+      var node = this.host && this.host.nodeName ? this.host : this
       node[fn] && node[fn].apply(node, args)
     }) 
     return c 
@@ -242,7 +240,7 @@ function create(s, d, j) {
   for (i = 0; i < css.length; i++) 
     node.classList.add(css[i])
 
-  node.__data__ = d[j] || 1
+  node.state = d[j] || 1
   return node
 }
 
@@ -256,14 +254,14 @@ function byKey(selector, data, key, b, parent, tnodes, tenter, texit) {
 
   while (parent.children[++c]) 
     if (!parent.children[c].matches(selector)) continue
-    else indexNodes[key(parent.children[c].__data__)] = parent.children[c]
+    else indexNodes[key(parent.children[c].state)] = parent.children[c]
 
   next = b ? parent.querySelector(b) : null
 
   while (d--) {
     if (child = indexNodes[k = key(data[d])])
       if (child === true) continue
-      else child.__data__ = data[d]
+      else child.state = data[d]
     else
       tenter.unshift(child = create(selector, data, d))
     
@@ -280,91 +278,186 @@ function byKey(selector, data, key, b, parent, tnodes, tenter, texit) {
     if (indexNodes[c] !== true)
       texit.unshift(parent.removeChild(indexNodes[c]))
 }
-},{"utilise.emitterify":4,"utilise.key":8,"utilise.keys":9}],2:[function(require,module,exports){
-module.exports = typeof window != 'undefined'
-},{}],3:[function(require,module,exports){
+},{"utilise.emitterify":3,"utilise.key":7,"utilise.keys":8}],2:[function(require,module,exports){
 var has = require('utilise.has')
 
 module.exports = function def(o, p, v, w){
+  if (o.host && o.host.nodeName) o = o.host
+  if (p.name) v = p, p = p.name
   !has(o, p) && Object.defineProperty(o, p, { value: v, writable: w })
   return o[p]
 }
 
-},{"utilise.has":6}],4:[function(require,module,exports){
-var err  = require('utilise.err')('[emitterify]')
-  , keys = require('utilise.keys')
-  , def  = require('utilise.def')
-  , not  = require('utilise.not')
-  , is   = require('utilise.is')
-  
-module.exports = function emitterify(body, dparam) {
-  return def(body, 'emit', emit, 1)
-       , def(body, 'once', once, 1)
-       , def(body, 'on', on, 1)
-       , body
+},{"utilise.has":5}],3:[function(require,module,exports){
+var promise = require('utilise.promise')
+  , flatten = require('utilise.flatten')
+  , def     = require('utilise.def')
+  , noop = function(){}
 
-  function emit(type, param, filter) {
-    var ns = type.split('.')[1]
-      , id = type.split('.')[0]
-      , li = body.on[id] || []
-      , tt = li.length - 1
-      , tp = is.def(param)  ? param 
-           : is.def(dparam) ? dparam
-           : [body]
-      , pm = is.arr(tp) ? tp : [tp]
+module.exports = function emitterify(body, hooks) {
+  body = body || {}
+  hooks = hooks || {}
+  def(body, 'emit', emit, 1)
+  def(body, 'once', once, 1)
+  def(body, 'off', off, 1)
+  def(body, 'on', on, 1)
+  body.on['*'] = body.on['*'] || []
+  return body
 
-    if (ns) return invoke(li, ns, pm), body
+  function emit(type, pm, filter) {
+    var li = body.on[type.split('.')[0]] || []
+      , results = []
 
-    for (var i = li.length; i >=0; i--)
-      invoke(li, i, pm)
+    for (var i = 0; i < li.length; i++)
+      if (!li[i].ns || !filter || filter(li[i].ns))
+        results.push(call(li[i].isOnce ? li.splice(i--, 1)[0] : li[i], pm))
 
-    keys(li)
-      .filter(not(isFinite))
-      .filter(filter || Boolean)
-      .map(function(n){ return invoke(li, n, pm) })
+    for (var i = 0; i < body.on['*'].length; i++)
+      results.push(call(body.on['*'][i], [type, pm]))
 
-    return body
+    return results.reduce(flatten, [])
   }
 
-  function invoke(o, k, p){
-    if (!o[k]) return
-    var fn = o[k]
-    o[k].once && (isFinite(k) ? o.splice(k, 1) : delete o[k])
-    try { fn.apply(body, p) } catch(e) { err(e, e.stack)  }
-   }
+  function call(cb, pm){
+    return cb.next             ? cb.next(pm) 
+         : pm instanceof Array ? cb.apply(body, pm) 
+                               : cb.call(body, pm) 
+  }
 
-  function on(type, callback) {
-    var ns = type.split('.')[1]
-      , id = type.split('.')[0]
+  function on(type, opts, isOnce) {
+    var id = type.split('.')[0]
+      , ns = type.split('.')[1]
+      , li = body.on[id] = body.on[id] || []
+      , cb = typeof opts == 'function' ? opts : 0
 
-    body.on[id] = body.on[id] || []
-    return !callback && !ns ? (body.on[id])
-         : !callback &&  ns ? (body.on[id][ns])
-         :  ns              ? (body.on[id][ns] = callback, body)
-                            : (body.on[id].push(callback), body)
+    return !cb &&  ns ? (cb = body.on[id]['$'+ns]) ? cb : push(observable(body, opts))
+         : !cb && !ns ? push(observable(body, opts))
+         :  cb &&  ns ? push((remove(li, body.on[id]['$'+ns] || -1), cb))
+         :  cb && !ns ? push(cb)
+                      : false
+
+    function push(cb){
+      cb.isOnce = isOnce
+      cb.type = id
+      if (ns) body.on[id]['$'+(cb.ns = ns)] = cb
+      li.push(cb)
+      ;(hooks.on || noop)(cb)
+      return cb.next ? cb : body
+    }
   }
 
   function once(type, callback){
-    return callback.once = true, body.on(type, callback), body
+    return body.on(type, callback, true)
   }
-}
-},{"utilise.def":3,"utilise.err":5,"utilise.is":7,"utilise.keys":9,"utilise.not":10}],5:[function(require,module,exports){
-var owner = require('utilise.owner')
-  , to = require('utilise.to')
 
-module.exports = function err(prefix){
-  return function(d){
-    if (!owner.console || !console.error.apply) return d;
-    var args = to.arr(arguments)
-    args.unshift(prefix.red ? prefix.red : prefix)
-    return console.error.apply(console, args), d
+  function remove(li, cb) {
+    var i = li.length
+    while (~--i) 
+      if (cb == li[i] || cb == li[i].fn || !cb)
+        (hooks.off || noop)(li.splice(i, 1)[0])
+  }
+
+  function off(type, cb) {
+    remove((body.on[type] || []), cb)
+    if (cb && cb.ns) delete body.on[type]['$'+cb.ns]
+    return body
+  }
+
+  function observable(parent, opts) {
+    opts = opts || {}
+    var o = emitterify(opts.base || promise())
+    o.i = 0
+    o.li = []
+    o.fn = opts.fn
+    o.parent = parent
+    o.source = opts.fn ? o.parent.source : o
+    
+    o.on('stop', function(reason){
+      o.type
+        ? o.parent.off(o.type, o)
+        : o.parent.off(o)
+      return o.reason = reason
+    })
+
+    o.each = function(fn) {
+      var n = fn.next ? fn : observable(o, { fn: fn })
+      o.li.push(n)
+      return n
+    }
+
+    o.pipe = function(fn) {
+      return fn(o)
+    }
+
+    o.map = function(fn){
+      return o.each(function(d, i, n){ return n.next(fn(d, i, n)) })
+    }
+
+    o.filter = function(fn){
+      return o.each(function(d, i, n){ return fn(d, i, n) && n.next(d) })
+    }
+
+    o.reduce = function(fn, acc) {
+      return o.each(function(d, i, n){ return n.next(acc = fn(acc, d, i, n)) })
+    }
+
+    o.unpromise = function(){ 
+      var n = observable(o, { base: {}, fn: function(d){ return n.next(d) } })
+      o.li.push(n)
+      return n
+    }
+
+    o.next = function(value) {
+      o.resolve && o.resolve(value)
+      return o.li.length 
+           ? o.li.map(function(n){ return n.fn(value, n.i++, n) })
+           : value
+    }
+
+    o.until = function(stop){
+      (stop.each || stop.then).call(stop, function(reason){ return o.source.emit('stop', reason) })
+      return o
+    }
+
+    o.off = function(fn){
+      return remove(o.li, fn), o
+    }
+
+    o.start = function(fn){
+      o.source.emit('start')
+      return o
+    }
+
+    o[Symbol.asyncIterator] = function(){ 
+      return { 
+        next: function(){ 
+          return o.wait = new Promise(function(resolve){
+            o.wait = true
+            o.map(function(d, i, n){
+              delete o.wait
+              o.off(n)
+              resolve({ value: d, done: false })
+            })
+            o.emit('pull', o)
+          })
+        }
+      }
+    }
+
+    return o
   }
 }
-},{"utilise.owner":11,"utilise.to":13}],6:[function(require,module,exports){
+},{"utilise.def":2,"utilise.flatten":4,"utilise.promise":9}],4:[function(require,module,exports){
+module.exports = function flatten(p,v){ 
+  if (v instanceof Array) v = v.reduce(flatten, [])
+  return (p = p || []), p.concat(v) 
+}
+
+},{}],5:[function(require,module,exports){
 module.exports = function has(o, k) {
   return k in o
 }
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 module.exports = is
 is.fn     = isFunction
 is.str    = isString
@@ -432,25 +525,27 @@ function isDef(d) {
 
 function isIn(set) {
   return function(d){
-    return !set ? false  
-         : set.indexOf ? ~set.indexOf(d)
-         : d in set
+    return  set.indexOf 
+         ? ~set.indexOf(d)
+         :  d in set
   }
 }
-},{}],8:[function(require,module,exports){
-var str = require('utilise.str')
+},{}],7:[function(require,module,exports){
+var wrap = require('utilise.wrap')
+  , dir = require('utilise.keys')
+  , str = require('utilise.str')
   , is = require('utilise.is')
 
 module.exports = function key(k, v){ 
   var set = arguments.length > 1
-    , keys = is.fn(k) ? [] : str(k).split('.')
+    , keys = is.fn(k) ? [] : str(k).split('.').filter(Boolean)
     , root = keys.shift()
 
   return function deep(o, i){
     var masked = {}
     
     return !o ? undefined 
-         : !is.num(k) && !k ? o
+         : !is.num(k) && !k ? (set ? replace(o, v) : o)
          : is.arr(k) ? (k.map(copy), masked)
          : o[k] || !keys.length ? (set ? ((o[k] = is.fn(v) ? v(o[k], i) : v), o)
                                        :  (is.fn(k) ? k(o) : o[k]))
@@ -459,25 +554,42 @@ module.exports = function key(k, v){
 
     function copy(k){
       var val = key(k)(o)
-      ;(val != undefined) && key(k, val)(masked)
+      val = is.fn(v)       ? v(val) 
+          : val == undefined ? v
+                           : val
+    if (val != undefined) 
+        key(k, is.fn(val) ? wrap(val) : val)(masked)
+    }
+
+    function replace(o, v) {
+      dir(o).map(function(k){ delete o[k] })
+      dir(v).map(function(k){ o[k] = v[k] })
+      return o
     }
   }
 }
-},{"utilise.is":7,"utilise.str":12}],9:[function(require,module,exports){
-module.exports = function keys(o) {
-  return Object.keys(o || {})
+},{"utilise.is":6,"utilise.keys":8,"utilise.str":10,"utilise.wrap":11}],8:[function(require,module,exports){
+var is = require('utilise.is')
+
+module.exports = function keys(o) { 
+  return Object.keys(is.obj(o) || is.fn(o) ? o : {})
+}
+},{"utilise.is":6}],9:[function(require,module,exports){
+module.exports = promise
+
+function promise() {
+  var resolve
+    , reject
+    , p = new Promise(function(res, rej){ 
+        resolve = res, reject = rej
+      })
+
+  arguments.length && resolve(arguments[0])
+  p.resolve = resolve
+  p.reject  = reject
+  return p
 }
 },{}],10:[function(require,module,exports){
-module.exports = function not(fn){
-  return function(){
-    return !fn.apply(this, arguments)
-  }
-}
-},{}],11:[function(require,module,exports){
-(function (global){
-module.exports = require('utilise.client') ? /* istanbul ignore next */ window : global
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"utilise.client":2}],12:[function(require,module,exports){
 var is = require('utilise.is') 
 
 module.exports = function str(d){
@@ -487,28 +599,10 @@ module.exports = function str(d){
        : is.obj(d) ? JSON.stringify(d)
        : String(d)
 }
-},{"utilise.is":7}],13:[function(require,module,exports){
-module.exports = { 
-  arr: toArray
-, obj: toObject
-}
-
-function toArray(d){
-  return Array.prototype.slice.call(d, 0)
-}
-
-function toObject(d) {
-  var by = 'id'
-    , o = {}
-
-  return arguments.length == 1 
-    ? (by = d, reduce)
-    : reduce.apply(this, arguments)
-
-  function reduce(p,v,i){
-    if (i === 0) p = {}
-    p[v[by]] = v
-    return p
+},{"utilise.is":6}],11:[function(require,module,exports){
+module.exports = function wrap(d){
+  return function(){
+    return d
   }
 }
 },{}]},{},[1])(1)
