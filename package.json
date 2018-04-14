@@ -1,6 +1,6 @@
 {
   "name": "utilise.once",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "main": "index.js",
   "scripts": {
     "test": "istanbul test ./node_modules/mocha/bin/_mocha --report html -- -R spec",
